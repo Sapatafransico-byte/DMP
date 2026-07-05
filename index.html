@@ -210,14 +210,14 @@
                 alert("⚠️ El adyacente no puede ser mayor a la hipotenusa.");
                 return;
             }
-
-            // Acos(A/H) en radianes convertido a grados
-            const radianes = Math.acos(adyacente / hipotenusa);
-            let grados = radianes * (180 / Math.PI);
-
             // SE AGREGA LA MATEMÁTICA SOLICITADA (Sumar 115/2 que es 57.5)
             const valorExtra = 115 / 2;
-            const anguloFinal = grados + valorExtra;
+            // Acos(A/H) en radianes convertido a grados
+            const radianes = Math.acos((adyacente+valorExtra) / (hipotenusa+valorExtra));
+            let grados = radianes * (180 / Math.PI);
+
+
+            const anguloFinal = grados 
 
             document.getElementById("resultadoAngulo").innerText = `Ángulo: ${anguloFinal.toFixed(2)}°`;
             
