@@ -29,13 +29,13 @@
             box-shadow: 0 8px 20px rgba(0,0,0,0.5);
         }
         .header-logo {
-            height: 60px; /* Tamaño ajustable para los logos */
+            height: 100px; /* Tamaño ajustable para los logos */
             object-fit: contain;
         }
         .header-title {
-            font-size: 2.5em; 
+            font-size: 2em; 
             font-weight: bold; 
-            letter-spacing: 2px;
+            letter-spacing: 1px;
             margin: 0;
         }
 
@@ -125,15 +125,21 @@
         <p>Controla el estado de calibración de la máquina.</p>
         
         <div class="botones-calibracion">
-            <button class="btn-calibrar" id="btnCalibrar">Calibrar (Enviar 0)</button>
+            <button class="btn-calibrar" id="btnCalibrar">Calibrar</button>
         </div>
         <div id="estadoCalibracion">Estado actual: Desconocido</div>
     </div>
 
 
     <div class="card">
-        <h3>Control de Movimiento (Ejes X y Y)</h3>
-        <p>La página se encarga de la matemática. Ingresa el ángulo final a enviar.</p>
+        <h3>Control de Movimiento (Eje Y)</h3>
+        <p>Ingresa el ángulo final a enviar para el eje Y.</p>
+        <input type="number" id="inputAngulo" class="input-full" placeholder="Ingresa ángulo calculado">
+        <button id="btnEnviarAngulo">Enviar Movimiento</button>
+    </div>
+        <div class="card">
+        <h3>Control de Movimiento (Ejes Z)</h3>
+        <p> Ingresa el ángulo final a enviar para eje z.</p>
         <input type="number" id="inputAngulo" class="input-full" placeholder="Ingresa ángulo calculado">
         <button id="btnEnviarAngulo">Enviar Movimiento</button>
     </div>
@@ -144,7 +150,7 @@
             <input type="number" id="catetoAdyacente" placeholder="Adyacente">
             <input type="number" id="hipotenusa" placeholder="Hipotenusa">
         </div>
-        <button id="btnCalcular">Calcular Matemáticas</button>
+        <button id="btnCalcular">Calcular </button>
         <div id="resultadoAngulo">Ángulo: -- °</div>
     </div>
 
