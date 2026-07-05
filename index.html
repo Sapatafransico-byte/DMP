@@ -14,40 +14,56 @@
             margin: 0; 
             padding: 20px; 
         }
-        /* Cabecera DMP */
-        .header-dmp { 
+        
+        /* Cabecera DMP con Logos */
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             background: #152191; 
-            padding: 20px; 
-            font-size: 2.5em; 
-            font-weight: bold; 
+            padding: 15px 30px; 
             border-radius: 15px; 
             margin-bottom: 30px; 
             box-shadow: 0 8px 20px rgba(0,0,0,0.5);
-            letter-spacing: 2px;
         }
+        .header-logo {
+            height: 60px; /* Tamaño ajustable para los logos */
+            object-fit: contain;
+        }
+        .header-title {
+            font-size: 2.5em; 
+            font-weight: bold; 
+            letter-spacing: 2px;
+            margin: 0;
+        }
+
         /* Tarjetas de control */
         .card { 
             background: #2b2d31; 
             padding: 25px; 
             border-radius: 15px; 
             margin: 15px auto; 
-            max-width: 450px; 
+            max-width: 480px; 
             box-shadow: 0 4px 15px rgba(0,0,0,0.3); 
         }
-        h3 { margin-top: 0; color: #00c6ff; }
-        p { color: #b5bac1; font-size: 14px; }
+        h3 { margin-top: 0; color: #00c6ff; font-size: 1.4em;}
+        p { color: #b5bac1; font-size: 14px; margin-bottom: 15px;}
         
         /* Inputs y Botones */
         input { 
             padding: 12px; 
-            margin: 10px; 
+            margin: 10px 5px; 
             border-radius: 8px; 
-            border: none; 
-            width: 85%; 
+            border: 1px solid #3a3c41; 
+            width: 40%; 
             background: #1e1f22; 
             color: white;
             text-align: center; 
             font-size: 16px;
+            box-sizing: border-box;
+        }
+        .input-full {
+            width: 85%;
         }
         button { 
             background: #5865f2; 
@@ -60,54 +76,83 @@
             cursor: pointer; 
             transition: 0.3s; 
             width: 90%;
-            margin-top: 10px;
+            margin-top: 15px;
         }
-        button:hover { background: #4752c4; transform: scale(1.05); }
+        button:hover { background: #4752c4; transform: scale(1.02); }
         
-        .calibrar-btn { background: #ed4245; }
-        .calibrar-btn:hover { background: #c9383a; }
+        /* Botones de Calibración Mejorados */
+        .botones-calibracion {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        .btn-calibrar { background: #00c853; width: 45%; margin-top: 0;}
+        .btn-calibrar:hover { background: #009624; }
+        .btn-descalibrar { background: #ed4245; width: 45%; margin-top: 0;}
+        .btn-descalibrar:hover { background: #c9383a; }
         
+        #estadoCalibracion {
+            margin-top: 15px;
+            font-size: 14px;
+            color: #b5bac1;
+            font-weight: bold;
+        }
+
         #resultadoAngulo {
             margin-top: 20px;
-            font-size: 20px;
+            font-size: 22px;
             background: #1e1f22;
-            padding: 10px;
+            padding: 15px;
             border-radius: 8px;
+            border: 1px solid #3a3c41;
+            color: #4dff88;
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
 
-    <div class="header-dmp">DMP</div>
-
-    <div class="card">
-        <h3>Calibración Inicial</h3>
-        <p>Establece la posición de los ejes Z y Y en 0.</p>
-        <button class="calibrar-btn" id="btnCalibrar">CALIBRAR EJES (Z=0, Y=0)</button>
+    <div class="header-container">
+        <img src="https://i.imgur.com/YqsTbxy.png" alt="UANL" class="header-logo">
+        <div class="header-title">DMP</div>
+        <img src="https://i.imgur.com/ThuJm05.png" alt="FIME" class="header-logo">
     </div>
 
     <div class="card">
-        <h3>Calculadora de Ángulo (Trigonometría)</h3>
-        <p>Ingresa los valores para obtener el ángulo mediante Arcocoseno.</p>
-        <input type="number" id="catetoAdyacente" placeholder="Cateto Adyacente">
-        <input type="number" id="hipotenusa" placeholder="Hipotenusa">
-        <button id="btnCalcular">Calcular Ángulo</button>
+        <h3>Calibración de Ejes</h3>
+        <p>Controla el estado de calibración de la máquina.</p>
+        
+        <div class="botones-calibracion">
+            <button class="btn-calibrar" id="btnCalibrar">Calibrar (Enviar 0)</button>
+            <button class="btn-descalibrar" id="btnDescalibrar">Mover (Enviar 2)</button>
+        </div>
+        <div id="estadoCalibracion">Estado actual: Desconocido</div>
+    </div>
+
+    <div class="card">
+        <h3>Calculadora de Ángulo</h3>
+        <p>Calcula el ángulo (Arcocoseno) y le suma automáticamente (115 / 2).</p>
+        <div>
+            <input type="number" id="catetoAdyacente" placeholder="Adyacente">
+            <input type="number" id="hipotenusa" placeholder="Hipotenusa">
+        </div>
+        <button id="btnCalcular">Calcular Matemáticas</button>
         <div id="resultadoAngulo">Ángulo: -- °</div>
     </div>
 
     <div class="card">
-        <h3>Control de Ejes X y Y</h3>
-        <p>Atención: El valor debe estar entre -45 y +45</p>
-        <input type="number" id="inputAngulo" placeholder="Ingresa ángulo a mandar">
-        <button id="btnEnviarAngulo">Enviar Ángulo</button>
+        <h3>Control de Movimiento (Ejes X y Y)</h3>
+        <p>La página se encarga de la matemática. Ingresa el ángulo final a enviar.</p>
+        <input type="number" id="inputAngulo" class="input-full" placeholder="Ingresa ángulo calculado">
+        <button id="btnEnviarAngulo">Enviar Movimiento</button>
     </div>
 
     <script type="module">
-        // Importamos Firebase Base y Realtime Database (la que usa el ESP32)
+        // Importamos Firebase
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
         import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
-        // 🔥 TUS CREDENCIALES (Añadí la URL de la base de datos de tu ESP32)
+        // Tus Credenciales
         const firebaseConfig = {
             apiKey: "AIzaSyB8LeQ1UNG6XqOpVWAMyde05JOvlWRENvU",
             authDomain: "exsos-login.firebaseapp.com",
@@ -122,63 +167,84 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // --- FUNCION 1: CALIBRAR EJES ---
+        // --- FUNCION 1: SISTEMA DE CALIBRACIÓN ---
+        const estadoCalibracionTxt = document.getElementById("estadoCalibracion");
+
+        // Botón para mandar 0 (Calibrar)
         document.getElementById("btnCalibrar").addEventListener("click", () => {
-            // Guarda un 0 en la ruta DMP/calibracion de Firebase
             set(ref(db, 'DMP/calibracion'), {
                 Z: 0,
                 Y: 0
             }).then(() => {
-                alert("✅ ¡Calibración exitosa! Ejes Z y Y reseteados a 0.");
+                estadoCalibracionTxt.innerText = "Estado actual: CALIBRADO (0)";
+                estadoCalibracionTxt.style.color = "#4dff88";
             }).catch((error) => {
                 console.error("Error al calibrar: ", error);
-                alert("Error de conexión con Firebase.");
             });
         });
 
-        // --- FUNCION 2: CALCULAR ÁNGULO ---
+        // Botón para mandar 2 (Avisar que cambió / No está en 0)
+        document.getElementById("btnDescalibrar").addEventListener("click", () => {
+            set(ref(db, 'DMP/calibracion'), {
+                Z: 2,
+                Y: 2
+            }).then(() => {
+                estadoCalibracionTxt.innerText = "Estado actual: FUERA DE CERO (2)";
+                estadoCalibracionTxt.style.color = "#ff4d4d";
+            }).catch((error) => {
+                console.error("Error al descalibrar: ", error);
+            });
+        });
+
+        // --- FUNCION 2: CALCULAR ÁNGULO CON SUMA DE (115/2) ---
         document.getElementById("btnCalcular").addEventListener("click", () => {
             const adyacente = parseFloat(document.getElementById("catetoAdyacente").value);
             const hipotenusa = parseFloat(document.getElementById("hipotenusa").value);
 
-            // Validaciones matemáticas
             if (isNaN(adyacente) || isNaN(hipotenusa) || hipotenusa === 0) {
-                alert("⚠️ Ingresa valores numéricos válidos. La hipotenusa no puede ser 0.");
+                alert("⚠️ Ingresa valores válidos. La hipotenusa no puede ser 0.");
                 return;
             }
             if (Math.abs(adyacente) > Math.abs(hipotenusa)) {
-                alert("⚠️ El cateto adyacente no puede ser mayor a la hipotenusa.");
+                alert("⚠️ El adyacente no puede ser mayor a la hipotenusa.");
                 return;
             }
 
-            // Operación matemática: Acos(A/H) en radianes, convertido a grados
+            // Acos(A/H) en radianes convertido a grados
             const radianes = Math.acos(adyacente / hipotenusa);
-            const grados = radianes * (180 / Math.PI);
+            let grados = radianes * (180 / Math.PI);
 
-            document.getElementById("resultadoAngulo").innerText = `Ángulo: ${grados.toFixed(2)}°`;
+            // SE AGREGA LA MATEMÁTICA SOLICITADA (Sumar 115/2 que es 57.5)
+            const valorExtra = 115 / 2;
+            const anguloFinal = grados + valorExtra;
+
+            document.getElementById("resultadoAngulo").innerText = `Ángulo: ${anguloFinal.toFixed(2)}°`;
+            
+            // Opcional: Pasar el resultado automáticamente al input de abajo
+            document.getElementById("inputAngulo").value = anguloFinal.toFixed(2);
         });
 
-        // --- FUNCION 3: ENVIAR ÁNGULO CON RESTRICCIONES ---
+        // --- FUNCION 3: ENVIAR ÁNGULO (PÁGINA HACE LA MATEMÁTICA) ---
         document.getElementById("btnEnviarAngulo").addEventListener("click", () => {
             const angulo = parseFloat(document.getElementById("inputAngulo").value);
 
             if (isNaN(angulo)) {
-                alert("⚠️ Por favor, ingresa un número válido.");
+                alert("⚠️ Ingresa un número válido para mover la máquina.");
                 return;
             }
 
-            // RESTRICCIÓN SOLICITADA
-            if (angulo < -45 || angulo > 45) {
-                alert("❌ ERROR: El ángulo para el eje Y y X no puede ser mayor a 45 ni menor a -45.");
-                return;
-            }
-
-            // Si pasa la prueba, se manda a Firebase
+            // Ya no limitamos a -45 por error, porque la página ahora hace el cálculo
             set(ref(db, 'DMP/ejes_xy'), {
                 X: angulo,
                 Y: angulo
             }).then(() => {
-                alert(`✅ Ángulo de ${angulo}° enviado correctamente a los ejes X y Y.`);
+                alert(`✅ Comando enviado: La máquina se moverá a ${angulo}°`);
+                
+                // Si movemos la máquina, automáticamente mandamos el estado a 2 (Descalibrado)
+                set(ref(db, 'DMP/calibracion'), { Z: 2, Y: 2 });
+                estadoCalibracionTxt.innerText = "Estado actual: FUERA DE CERO (2)";
+                estadoCalibracionTxt.style.color = "#ff4d4d";
+
             }).catch((error) => {
                 console.error("Error al enviar ángulo: ", error);
             });
