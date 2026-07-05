@@ -116,7 +116,7 @@
 
     <div class="header-container">
         <img src="https://i.imgur.com/YqsTbxy.png" alt="UANL" class="header-logo">
-        <div class="header-title">DMP</div>
+        <div class="header-title">Diseño De Mecanismos De Precisión</div>
         <img src="https://i.imgur.com/ThuJm05.png" alt="FIME" class="header-logo">
     </div>
 
@@ -126,11 +126,17 @@
         
         <div class="botones-calibracion">
             <button class="btn-calibrar" id="btnCalibrar">Calibrar (Enviar 0)</button>
-            <button class="btn-descalibrar" id="btnDescalibrar">Mover (Enviar 2)</button>
         </div>
         <div id="estadoCalibracion">Estado actual: Desconocido</div>
     </div>
 
+
+    <div class="card">
+        <h3>Control de Movimiento (Ejes X y Y)</h3>
+        <p>La página se encarga de la matemática. Ingresa el ángulo final a enviar.</p>
+        <input type="number" id="inputAngulo" class="input-full" placeholder="Ingresa ángulo calculado">
+        <button id="btnEnviarAngulo">Enviar Movimiento</button>
+    </div>
     <div class="card">
         <h3>Calculadora de Ángulo</h3>
         <p>Calcula el ángulo (Arcocoseno) y le suma automáticamente (115 / 2).</p>
@@ -140,13 +146,6 @@
         </div>
         <button id="btnCalcular">Calcular Matemáticas</button>
         <div id="resultadoAngulo">Ángulo: -- °</div>
-    </div>
-
-    <div class="card">
-        <h3>Control de Movimiento (Ejes X y Y)</h3>
-        <p>La página se encarga de la matemática. Ingresa el ángulo final a enviar.</p>
-        <input type="number" id="inputAngulo" class="input-full" placeholder="Ingresa ángulo calculado">
-        <button id="btnEnviarAngulo">Enviar Movimiento</button>
     </div>
 
     <script type="module">
