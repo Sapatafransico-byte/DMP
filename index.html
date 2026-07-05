@@ -156,7 +156,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-        import { getDatabase, ref, set, update } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+        import { getDatabase, ref, update } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyB8LeQ1UNG6XqOpVWAMyde05JOvlWRENvU",
@@ -176,7 +176,6 @@
 
         // --- CALIBRAR (MANDAR AL CENTRO) ---
         document.getElementById("btnCalibrar").addEventListener("click", () => {
-            // Mandamos 0 a los ejes reales para que el Arduino se mueva al centro
             update(ref(db, 'DMP'), {
                 'ejes_xy/Y': 0,
                 'ejes_xy/Z': 0,
@@ -191,7 +190,13 @@
         // --- ENVIAR EJE Y ---
         document.getElementById("btnEnviarY").addEventListener("click", () => {
             const valY = parseFloat(document.getElementById("inputAnguloY").value);
+            
             if (isNaN(valY)) return alert("⚠️ Ingresa un número válido para Y.");
+            
+            // RESTRICCIÓN FÍSICA EJE Y
+            if (valY < -45 || valY > 45) {
+                return alert("❌ LIMITANTE FÍSICA: No se puede mover. Pon un ángulo entre -45 y 45.");
+            }
 
             update(ref(db, 'DMP'), {
                 'ejes_xy/Y': valY,
@@ -205,7 +210,13 @@
         // --- ENVIAR EJE Z ---
         document.getElementById("btnEnviarZ").addEventListener("click", () => {
             const valZ = parseFloat(document.getElementById("inputAnguloZ").value);
+            
             if (isNaN(valZ)) return alert("⚠️ Ingresa un número válido para Z.");
+
+            // RESTRICCIÓN FÍSICA EJE Z
+            if (valZ < -45 || valZ > 45) {
+                return alert("❌ LIMITANTE FÍSICA: No se puede mover. Pon un ángulo entre -45 y 45.");
+            }
 
             update(ref(db, 'DMP'), {
                 'ejes_xy/Z': valZ,
@@ -232,11 +243,8 @@
             const radianes = Math.acos((adyacente + valorExtra) / (hipotenusa + valorExtra));
             const grados = radianes * (180 / Math.PI);
 
+            // Solo muestra el cálculo, ya no interviene en los cuadros de texto de Y ni Z
             document.getElementById("resultadoAngulo").innerText = `Ángulo: ${grados.toFixed(5)}°`;
-            
-            // Llena ambos cuadros por si quieres mandarlo a cualquiera de los dos ejes
-            document.getElementById("inputAnguloY").value = grados.toFixed(2);
-            document.getElementById("inputAnguloZ").value = grados.toFixed(2);
         });
     </script>
 </body>
