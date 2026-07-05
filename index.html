@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interfaz DMP</title>
+    <style>
+        /* Estilos base con diseño oscuro estilo Discord/EXSOS */
+        body { 
+            font-family: 'Segoe UI', sans-serif; 
+            background: #111214; 
+            color: white; 
+            text-align: center; 
+            margin: 0; 
+            padding: 20px; 
+        }
+        /* Cabecera DMP */
+        .header-dmp { 
+            background: #152191; 
+            padding: 20px; 
+            font-size: 2.5em; 
+            font-weight: bold; 
+            border-radius: 15px; 
+            margin-bottom: 30px; 
+            box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+            letter-spacing: 2px;
+        }
+        /* Tarjetas de control */
+        .card { 
+            background: #2b2d31; 
+            padding: 25px; 
+            border-radius: 15px; 
+            margin: 15px auto; 
+            max-width: 450px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3); 
+        }
+        h3 { margin-top: 0; color: #00c6ff; }
+        p { color: #b5bac1; font-size: 14px; }
+        
+        /* Inputs y Botones */
+        input { 
+            padding: 12px; 
+            margin: 10px; 
+            border-radius: 8px; 
+            border: none; 
+            width: 85%; 
+            background: #1e1f22; 
+            color: white;
+            text-align: center; 
+            font-size: 16px;
+        }
+        button { 
+            background: #5865f2; 
+            color: white; 
+            padding: 12px 25px; 
+            border: none; 
+            border-radius: 8px; 
+            font-weight: bold; 
+            font-size: 16px;
+            cursor: pointer; 
+            transition: 0.3s; 
+            width: 90%;
+            margin-top: 10px;
+        }
+        button:hover { background: #4752c4; transform: scale(1.05); }
+        
+        .calibrar-btn { background: #ed4245; }
+        .calibrar-btn:hover { background: #c9383a; }
+        
+        #resultadoAngulo {
+            margin-top: 20px;
+            font-size: 20px;
+            background: #1e1f22;
+            padding: 10px;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header-dmp">DMP</div>
+
+    <div class="card">
+        <h3>Calibración Inicial</h3>
+        <p>Establece la posición de los ejes Z y Y en 0.</p>
+        <button class="calibrar-btn" id="btnCalibrar">CALIBRAR EJES (Z=0, Y=0)</button>
+    </div>
+
+    <div class="card">
+        <h3>Calculadora de Ángulo (Trigonometría)</h3>
+        <p>Ingresa los valores para obtener el ángulo mediante Arcocoseno.</p>
+        <input type="number" id="catetoAdyacente" placeholder="Cateto Adyacente">
+        <input type="number" id="hipotenusa" placeholder="Hipotenusa">
+        <button id="btnCalcular">Calcular Ángulo</button>
+        <div id="resultadoAngulo">Ángulo: -- °</div>
+    </div>
+
+    <div class="card">
+        <h3>Control de Ejes X y Y</h3>
+        <p>Atención: El valor debe estar entre -45 y +45</p>
+        <input type="number" id="inputAngulo" placeholder="Ingresa ángulo a mandar">
+        <button id="btnEnviarAngulo">Enviar Ángulo</button>
+    </div>
+
+    <script type="module">
+        // Importamos Firebase Base y Realtime Database (la que usa el ESP32)
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+        import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+        // 🔥 TUS CREDENCIALES (Añadí la URL de la base de datos de tu ESP32)
+        const firebaseConfig = {
+            apiKey: "AIzaSyB8LeQ1UNG6XqOpVWAMyde05JOvlWRENvU",
+            authDomain: "exsos-login.firebaseapp.com",
+            projectId: "exsos-login",
+            storageBucket: "exsos-login.firebasestorage.app",
+            messagingSenderId: "254157261321",
+            appId: "1:254157261321:web:449f88c3567303afa846d8",
+            measurementId: "G-35YQC4CCDH",
+            databaseURL: "https://estacionamientouanl-default-rtdb.firebaseio.com" 
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // --- FUNCION 1: CALIBRAR EJES ---
+        document.getElementById("btnCalibrar").addEventListener("click", () => {
+            // Guarda un 0 en la ruta DMP/calibracion de Firebase
+            set(ref(db, 'DMP/calibracion'), {
+                Z: 0,
+                Y: 0
+            }).then(() => {
+                alert("✅ ¡Calibración exitosa! Ejes Z y Y reseteados a 0.");
+            }).catch((error) => {
+                console.error("Error al calibrar: ", error);
+                alert("Error de conexión con Firebase.");
+            });
+        });
+
+        // --- FUNCION 2: CALCULAR ÁNGULO ---
+        document.getElementById("btnCalcular").addEventListener("click", () => {
+            const adyacente = parseFloat(document.getElementById("catetoAdyacente").value);
+            const hipotenusa = parseFloat(document.getElementById("hipotenusa").value);
+
+            // Validaciones matemáticas
+            if (isNaN(adyacente) || isNaN(hipotenusa) || hipotenusa === 0) {
+                alert("⚠️ Ingresa valores numéricos válidos. La hipotenusa no puede ser 0.");
+                return;
+            }
+            if (Math.abs(adyacente) > Math.abs(hipotenusa)) {
+                alert("⚠️ El cateto adyacente no puede ser mayor a la hipotenusa.");
+                return;
+            }
+
+            // Operación matemática: Acos(A/H) en radianes, convertido a grados
+            const radianes = Math.acos(adyacente / hipotenusa);
+            const grados = radianes * (180 / Math.PI);
+
+            document.getElementById("resultadoAngulo").innerText = `Ángulo: ${grados.toFixed(2)}°`;
+        });
+
+        // --- FUNCION 3: ENVIAR ÁNGULO CON RESTRICCIONES ---
+        document.getElementById("btnEnviarAngulo").addEventListener("click", () => {
+            const angulo = parseFloat(document.getElementById("inputAngulo").value);
+
+            if (isNaN(angulo)) {
+                alert("⚠️ Por favor, ingresa un número válido.");
+                return;
+            }
+
+            // RESTRICCIÓN SOLICITADA
+            if (angulo < -45 || angulo > 45) {
+                alert("❌ ERROR: El ángulo para el eje Y y X no puede ser mayor a 45 ni menor a -45.");
+                return;
+            }
+
+            // Si pasa la prueba, se manda a Firebase
+            set(ref(db, 'DMP/ejes_xy'), {
+                X: angulo,
+                Y: angulo
+            }).then(() => {
+                alert(`✅ Ángulo de ${angulo}° enviado correctamente a los ejes X y Y.`);
+            }).catch((error) => {
+                console.error("Error al enviar ángulo: ", error);
+            });
+        });
+    </script>
+</body>
+</html>
