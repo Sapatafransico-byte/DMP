@@ -68,14 +68,47 @@
         .btn-calibrar { background: #00c853; width: 60%; margin-top: 0;}
         .btn-calibrar:hover { background: #009624; }
         
-        #estadoAccion, .monitor-datos {
+        #estadoAccion {
             margin-top: 20px; font-size: 16px; color: #b5bac1; 
             font-weight: bold; background: #111214; padding: 15px; 
             border-radius: 8px; border: 1px solid #3a3c41;
         }
 
-        .monitor-datos p { margin: 10px 0; font-size: 16px; text-align: left; }
-        .valor-fb { color: #00c6ff; font-weight: bold; font-size: 18px; }
+        /* DISEÑO DE CUADRÍCULA PARA EL MONITOR EN TIEMPO REAL */
+        .monitor-grid {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .eje-box {
+            background: #111214;
+            border: 1px solid #3a3c41;
+            border-radius: 10px;
+            padding: 20px 10px;
+            width: 48%; /* Ocupa la mitad del espacio cada uno */
+            box-sizing: border-box;
+            text-align: center;
+        }
+        .eje-titulo {
+            font-size: 16px;
+            color: #b5bac1;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        .valor-fb { 
+            color: #00c6ff; 
+            font-weight: bold; 
+            font-size: 36px; /* Números más grandes y legibles */
+            display: block;
+            margin-bottom: 10px;
+        }
+        .estado-fb {
+            font-size: 14px;
+            font-weight: bold;
+        }
 
         #resultadoAngulo {
             margin-top: 20px; font-size: 22px; background: #1e1f22; 
@@ -94,15 +127,23 @@
 
     <div class="card monitor-card">
         <h3>📡 Monitor en Tiempo Real</h3>
-        <p>Lectura directa de la posición y estado desde el ESP32.</p>
-        <div class="monitor-datos">
-            <p><strong>Eje Y:</strong> <span class="valor-fb" id="fbPosY">--</span>° 
-               <br> <span id="fbEstadoY" style="font-size: 14px;">--</span></p>
-            <p><strong>Eje Z:</strong> <span class="valor-fb" id="fbPosZ">--</span>° 
-               <br> <span id="fbEstadoZ" style="font-size: 14px;">--</span></p>
-        </div>
-        <div id="estadoConexion" style="margin-top: 10px; font-size: 12px; color: #ffcc00;">
+        <p style="margin-bottom: 5px;">Lectura directa de la posición y estado desde el ESP32.</p>
+        <div id="estadoConexion" style="font-size: 12px; color: #ffcc00; margin-bottom: 15px;">
             Conectando a Firebase...
+        </div>
+
+        <div class="monitor-grid">
+            <div class="eje-box">
+                <div class="eje-titulo">Eje Y</div>
+                <span class="valor-fb" id="fbPosY">--°</span>
+                <span class="estado-fb" id="fbEstadoY">--</span>
+            </div>
+            
+            <div class="eje-box">
+                <div class="eje-titulo">Eje Z</div>
+                <span class="valor-fb" id="fbPosZ">--°</span>
+                <span class="estado-fb" id="fbEstadoZ">--</span>
+            </div>
         </div>
     </div>
 
@@ -175,21 +216,20 @@
                 const posZ = data.ejes_xy?.Z !== undefined ? data.ejes_xy.Z : "--";
                 
                 // Leemos Estados (0 = Moviendo, 1 = Posicionado)
-                // Si no existe, por defecto mostramos posicionado
                 const estadoY = data.estado?.Y !== undefined ? data.estado.Y : 1; 
                 const estadoZ = data.estado?.Z !== undefined ? data.estado.Z : 1;
 
-                // Mostramos Ángulos
-                document.getElementById("fbPosY").innerText = posY;
-                document.getElementById("fbPosZ").innerText = posZ;
+                // Mostramos Ángulos en las cajas grandes
+                document.getElementById("fbPosY").innerText = posY !== "--" ? posY + "°" : "--°";
+                document.getElementById("fbPosZ").innerText = posZ !== "--" ? posZ + "°" : "--°";
 
                 // Lógica Visual Eje Y
-                const textoY = estadoY === 0 ? "⏳ Se está moviendo..." : "✅ Está posicionado";
+                const textoY = estadoY === 0 ? "⏳ Moviendo..." : "✅ Posicionado";
                 document.getElementById("fbEstadoY").innerText = textoY;
                 document.getElementById("fbEstadoY").style.color = estadoY === 0 ? "#ffcc00" : "#4dff88";
 
                 // Lógica Visual Eje Z
-                const textoZ = estadoZ === 0 ? "⏳ Se está moviendo..." : "✅ Está posicionado";
+                const textoZ = estadoZ === 0 ? "⏳ Moviendo..." : "✅ Posicionado";
                 document.getElementById("fbEstadoZ").innerText = textoZ;
                 document.getElementById("fbEstadoZ").style.color = estadoZ === 0 ? "#ffcc00" : "#4dff88";
             }
@@ -256,5 +296,7 @@
             document.getElementById("resultadoAngulo").innerText = `Ángulo: ${grados.toFixed(5)}°`;
         });
     </script>
+</body>
+</html>
 </body>
 </html>
