@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -5,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Interfaz DMP</title>
     <style>
-        /* Estilos base con diseño oscuro estilo Discord/EXSOS */
+        /* Estilos base */
         body { 
             font-family: 'Segoe UI', sans-serif; 
             background: #111214; 
@@ -26,16 +27,8 @@
             margin-bottom: 30px; 
             box-shadow: 0 8px 20px rgba(0,0,0,0.5);
         }
-        .header-logo {
-            height: 100px; 
-            object-fit: contain;
-        }
-        .header-title {
-            font-size: 2em; 
-            font-weight: bold; 
-            letter-spacing: 1px;
-            margin: 0;
-        }
+        .header-logo { height: 100px; object-fit: contain; }
+        .header-title { font-size: 2em; font-weight: bold; letter-spacing: 1px; margin: 0; }
 
         /* Tarjetas de control */
         .card { 
@@ -46,69 +39,49 @@
             max-width: 480px; 
             box-shadow: 0 4px 15px rgba(0,0,0,0.3); 
         }
+        
+        /* Tarjeta especial para el monitor */
+        .monitor-card {
+            border: 2px solid #5865f2;
+            background: #1e1f22;
+        }
+
         h3 { margin-top: 0; color: #00c6ff; font-size: 1.4em;}
         p { color: #b5bac1; font-size: 14px; margin-bottom: 15px;}
         
         /* Inputs y Botones */
         input { 
-            padding: 12px; 
-            margin: 10px 5px; 
-            border-radius: 8px; 
-            border: 1px solid #3a3c41; 
-            width: 40%; 
-            background: #1e1f22; 
-            color: white;
-            text-align: center; 
-            font-size: 16px;
-            box-sizing: border-box;
+            padding: 12px; margin: 10px 5px; border-radius: 8px; 
+            border: 1px solid #3a3c41; width: 40%; background: #1e1f22; 
+            color: white; text-align: center; font-size: 16px; box-sizing: border-box;
         }
-        .input-full {
-            width: 85%;
-        }
+        .input-full { width: 85%; }
         button { 
-            background: #5865f2; 
-            color: white; 
-            padding: 12px 25px; 
-            border: none; 
-            border-radius: 8px; 
-            font-weight: bold; 
-            font-size: 16px;
-            cursor: pointer; 
-            transition: 0.3s; 
-            width: 90%;
-            margin-top: 15px;
+            background: #5865f2; color: white; padding: 12px 25px; 
+            border: none; border-radius: 8px; font-weight: bold; 
+            font-size: 16px; cursor: pointer; transition: 0.3s; 
+            width: 90%; margin-top: 15px;
         }
         button:hover { background: #4752c4; transform: scale(1.02); }
         
         /* Botones de Calibración */
-        .botones-calibracion {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-        }
+        .botones-calibracion { display: flex; gap: 10px; justify-content: center; }
         .btn-calibrar { background: #00c853; width: 60%; margin-top: 0;}
         .btn-calibrar:hover { background: #009624; }
         
-        #estadoCalibracion {
-            margin-top: 20px;
-            font-size: 16px;
-            color: #b5bac1;
-            font-weight: bold;
-            background: #1e1f22;
-            padding: 10px;
-            border-radius: 8px;
-            border: 1px solid #3a3c41;
+        #estadoCalibracion, .monitor-datos {
+            margin-top: 20px; font-size: 16px; color: #b5bac1; 
+            font-weight: bold; background: #111214; padding: 15px; 
+            border-radius: 8px; border: 1px solid #3a3c41;
         }
 
+        .monitor-datos p { margin: 8px 0; font-size: 16px; text-align: left; }
+        .valor-fb { color: #00c6ff; font-weight: bold; font-size: 18px; }
+
         #resultadoAngulo {
-            margin-top: 20px;
-            font-size: 22px;
-            background: #1e1f22;
-            padding: 15px;
-            border-radius: 8px;
-            border: 1px solid #3a3c41;
-            color: #4dff88;
-            font-weight: bold;
+            margin-top: 20px; font-size: 22px; background: #1e1f22; 
+            padding: 15px; border-radius: 8px; border: 1px solid #3a3c41; 
+            color: #4dff88; font-weight: bold;
         }
     </style>
 </head>
@@ -120,13 +93,27 @@
         <img src="https://i.imgur.com/ThuJm05.png" alt="FIME" class="header-logo">
     </div>
 
+    <div class="card monitor-card">
+        <h3>📡 Monitor en Tiempo Real</h3>
+        <p>Lectura directa desde la base de datos (Firebase).</p>
+        <div class="monitor-datos">
+            <p><strong>Ángulo Eje Y:</strong> <span class="valor-fb" id="fbPosY">--</span>° 
+               | Estado: <span id="fbCalY">--</span></p>
+            <p><strong>Ángulo Eje Z:</strong> <span class="valor-fb" id="fbPosZ">--</span>° 
+               | Estado: <span id="fbCalZ">--</span></p>
+        </div>
+        <div id="estadoConexion" style="margin-top: 10px; font-size: 12px; color: #ffcc00;">
+            Conectando a Firebase...
+        </div>
+    </div>
+
     <div class="card">
         <h3>Calibración de Ejes</h3>
         <p>Devuelve la máquina a la posición inicial (Centro / 0°).</p>
         <div class="botones-calibracion">
             <button class="btn-calibrar" id="btnCalibrar">Calibrar al Centro (0°)</button>
         </div>
-        <div id="estadoCalibracion">Estado actual: Esperando conexión...</div>
+        <div id="estadoCalibracion">Esperando acción...</div>
     </div>
 
     <div class="card">
@@ -155,8 +142,9 @@
     </div>
 
     <script type="module">
+        // IMPORTAMOS 'onValue' PARA ESCUCHAR EN TIEMPO REAL
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-        import { getDatabase, ref, update } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+        import { getDatabase, ref, update, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyB8LeQ1UNG6XqOpVWAMyde05JOvlWRENvU",
@@ -174,6 +162,38 @@
 
         const estadoCalibracionTxt = document.getElementById("estadoCalibracion");
 
+        // 🟢 --- LECTURA EN TIEMPO REAL DESDE FIREBASE --- 🟢
+        const dmpRef = ref(db, 'DMP');
+        
+        onValue(dmpRef, (snapshot) => {
+            document.getElementById("estadoConexion").innerText = "🟢 Conectado en tiempo real";
+            document.getElementById("estadoConexion").style.color = "#4dff88";
+
+            if (snapshot.exists()) {
+                const data = snapshot.val();
+                
+                // Leemos los valores asegurándonos de que existan
+                const posY = data.ejes_xy?.Y !== undefined ? data.ejes_xy.Y : "--";
+                const posZ = data.ejes_xy?.Z !== undefined ? data.ejes_xy.Z : "--";
+                const calY = data.calibracion?.Y;
+                const calZ = data.calibracion?.Z;
+
+                // Actualizamos la pantalla del Monitor
+                document.getElementById("fbPosY").innerText = posY;
+                document.getElementById("fbPosZ").innerText = posZ;
+
+                // Formato de texto y color para el estado de calibración Y
+                const textoCalY = calY === 0 ? "Calibrado (0)" : "Fuera de cero (2)";
+                document.getElementById("fbCalY").innerText = textoCalY;
+                document.getElementById("fbCalY").style.color = calY === 0 ? "#4dff88" : "#ffcc00";
+
+                // Formato de texto y color para el estado de calibración Z
+                const textoCalZ = calZ === 0 ? "Calibrado (0)" : "Fuera de cero (2)";
+                document.getElementById("fbCalZ").innerText = textoCalZ;
+                document.getElementById("fbCalZ").style.color = calZ === 0 ? "#4dff88" : "#ffcc00";
+            }
+        });
+
         // --- CALIBRAR (MANDAR AL CENTRO) ---
         document.getElementById("btnCalibrar").addEventListener("click", () => {
             update(ref(db, 'DMP'), {
@@ -182,8 +202,7 @@
                 'calibracion/Y': 0,
                 'calibracion/Z': 0
             }).then(() => {
-                estadoCalibracionTxt.innerText = "Estado actual: Calibrado en el punto central";
-                estadoCalibracionTxt.style.color = "#4dff88"; // Verde
+                estadoCalibracionTxt.innerText = "Acción: Comando de calibración enviado.";
             }).catch((error) => console.error("Error al calibrar: ", error));
         });
 
@@ -192,18 +211,13 @@
             const valY = parseFloat(document.getElementById("inputAnguloY").value);
             
             if (isNaN(valY)) return alert("⚠️ Ingresa un número válido para Y.");
-            
-            // RESTRICCIÓN FÍSICA EJE Y
-            if (valY < -45 || valY > 45) {
-                return alert("❌ LIMITANTE FÍSICA: No se puede mover. Pon un ángulo entre -45 y 45.");
-            }
+            if (valY < -45 || valY > 45) return alert("❌ LIMITANTE FÍSICA: No se puede mover. Pon un ángulo entre -45 y 45.");
 
             update(ref(db, 'DMP'), {
                 'ejes_xy/Y': valY,
-                'calibracion/Y': 2 // Bandera de que ya no está en 0
+                'calibracion/Y': 2
             }).then(() => {
-                estadoCalibracionTxt.innerText = "Estado actual: Se está moviendo en el Eje Y...";
-                estadoCalibracionTxt.style.color = "#ffcc00"; // Amarillo
+                estadoCalibracionTxt.innerText = "Acción: Comando enviado al Eje Y.";
             });
         });
 
@@ -212,18 +226,13 @@
             const valZ = parseFloat(document.getElementById("inputAnguloZ").value);
             
             if (isNaN(valZ)) return alert("⚠️ Ingresa un número válido para Z.");
-
-            // RESTRICCIÓN FÍSICA EJE Z
-            if (valZ < -45 || valZ > 45) {
-                return alert("❌ LIMITANTE FÍSICA: No se puede mover. Pon un ángulo entre -45 y 45.");
-            }
+            if (valZ < -45 || valZ > 45) return alert("❌ LIMITANTE FÍSICA: No se puede mover. Pon un ángulo entre -45 y 45.");
 
             update(ref(db, 'DMP'), {
                 'ejes_xy/Z': valZ,
-                'calibracion/Z': 2 // Bandera de que ya no está en 0
+                'calibracion/Z': 2
             }).then(() => {
-                estadoCalibracionTxt.innerText = "Estado actual: Se está moviendo en el Eje Z...";
-                estadoCalibracionTxt.style.color = "#ffcc00"; // Amarillo
+                estadoCalibracionTxt.innerText = "Acción: Comando enviado al Eje Z.";
             });
         });
 
@@ -243,7 +252,6 @@
             const radianes = Math.acos((adyacente + valorExtra) / (hipotenusa + valorExtra));
             const grados = radianes * (180 / Math.PI);
 
-            // Solo muestra el cálculo, ya no interviene en los cuadros de texto de Y ni Z
             document.getElementById("resultadoAngulo").innerText = `Ángulo: ${grados.toFixed(5)}°`;
         });
     </script>
