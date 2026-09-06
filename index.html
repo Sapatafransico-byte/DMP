@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interfaz DMP</title>
+    <title>Panel de Control y Monitoreo ESP32</title>
     <style>
         /* Estilos base */
         body { 
@@ -15,7 +15,7 @@
             padding: 20px; 
         }
          
-        /* Cabecera DMP con Logos */
+        /* Cabecera con Logos */
         .header-container {
             display: flex;
             justify-content: space-between;
@@ -26,20 +26,19 @@
             margin-bottom: 30px; 
             box-shadow: 0 8px 20px rgba(0,0,0,0.5);
         }
-        .header-logo { height: 100px; object-fit: contain; }
-        .header-title { font-size: 2em; font-weight: bold; letter-spacing: 1px; margin: 0; }
+        .header-logo { height: 80px; object-fit: contain; }
+        .header-title { font-size: 1.8em; font-weight: bold; letter-spacing: 1px; margin: 0; }
 
-        /* Tarjetas de control */
+        /* Tarjetas */
         .card { 
             background: #2b2d31; 
             padding: 25px; 
             border-radius: 15px; 
             margin: 15px auto; 
-            max-width: 480px; 
+            max-width: 600px; 
             box-shadow: 0 4px 15px rgba(0,0,0,0.3); 
         }
         
-        /* Tarjeta especial para el monitor */
         .monitor-card {
             border: 2px solid #5865f2;
             background: #1e1f22;
@@ -48,25 +47,19 @@
         h3 { margin-top: 0; color: #00c6ff; font-size: 1.4em;}
         p { color: #b5bac1; font-size: 14px; margin-bottom: 15px;}
         
-        /* Inputs y Botones */
-        input { 
-            padding: 12px; margin: 10px 5px; border-radius: 8px; 
-            border: 1px solid #3a3c41; width: 40%; background: #1e1f22; 
-            color: white; text-align: center; font-size: 16px; box-sizing: border-box;
-        }
-        .input-full { width: 85%; }
+        /* Botones de Control de Motor */
+        .motor-controls { display: flex; gap: 10px; justify-content: center; margin-top: 15px;}
         button { 
-            background: #5865f2; color: white; padding: 12px 25px; 
+            color: white; padding: 12px 20px; 
             border: none; border-radius: 8px; font-weight: bold; 
             font-size: 16px; cursor: pointer; transition: 0.3s; 
-            width: 90%; margin-top: 15px;
+            width: 30%;
         }
-        button:hover { background: #4752c4; transform: scale(1.02); }
+        button:hover { transform: scale(1.05); filter: brightness(1.2); }
         
-        /* Botones de Calibración */
-        .botones-calibracion { display: flex; gap: 10px; justify-content: center; }
-        .btn-calibrar { background: #00c853; width: 60%; margin-top: 0;}
-        .btn-calibrar:hover { background: #009624; }
+        .btn-izq { background: #e67e22; }
+        .btn-stop { background: #e74c3c; width: 40%;}
+        .btn-der { background: #2ecc71; }
         
         #estadoAccion {
             margin-top: 20px; font-size: 16px; color: #b5bac1; 
@@ -74,46 +67,35 @@
             border-radius: 8px; border: 1px solid #3a3c41;
         }
 
-        /* DISEÑO DE CUADRÍCULA PARA EL MONITOR EN TIEMPO REAL */
+        /* Diseño de cuadrícula para sensores */
         .monitor-grid {
             display: flex;
             justify-content: space-between;
-            gap: 15px;
+            gap: 10px;
             margin-top: 15px;
         }
-        .eje-box {
+        .sensor-box {
             background: #111214;
             border: 1px solid #3a3c41;
             border-radius: 10px;
             padding: 20px 10px;
-            width: 48%; /* Ocupa la mitad del espacio cada uno */
+            width: 32%; 
             box-sizing: border-box;
             text-align: center;
         }
-        .eje-titulo {
-            font-size: 16px;
+        .sensor-titulo {
+            font-size: 14px;
             color: #b5bac1;
             text-transform: uppercase;
-            letter-spacing: 2px;
+            letter-spacing: 1px;
             margin-bottom: 10px;
             font-weight: bold;
         }
         .valor-fb { 
-            color: #00c6ff; 
+            color: #4dff88; 
             font-weight: bold; 
-            font-size: 36px; /* Números más grandes y legibles */
+            font-size: 28px; 
             display: block;
-            margin-bottom: 10px;
-        }
-        .estado-fb {
-            font-size: 14px;
-            font-weight: bold;
-        }
-
-        #resultadoAngulo {
-            margin-top: 20px; font-size: 22px; background: #1e1f22; 
-            padding: 15px; border-radius: 8px; border: 1px solid #3a3c41; 
-            color: #4dff88; font-weight: bold;
         }
     </style>
 </head>
@@ -121,64 +103,46 @@
 
     <div class="header-container">
         <img src="https://i.imgur.com/YqsTbxy.png" alt="UANL" class="header-logo">
-        <div class="header-title">Diseño De Mecanismos De Precisión</div>
+        <div class="header-title">Control y Monitoreo L293D</div>
         <img src="https://i.imgur.com/ThuJm05.png" alt="FIME" class="header-logo">
     </div>
 
+    <!-- MONITOR DE SENSORES -->
     <div class="card monitor-card">
-        <h3>📡 Monitor en Tiempo Real</h3>
-        <p style="margin-bottom: 5px;">Lectura directa de la posición y estado desde el ESP32.</p>
+        <h3>📡 Monitor del Potenciómetro</h3>
+        <p style="margin-bottom: 5px;">Lectura analógica constante desde el pin 36 del ESP32.</p>
         <div id="estadoConexion" style="font-size: 12px; color: #ffcc00; margin-bottom: 15px;">
             Conectando a Firebase...
         </div>
 
         <div class="monitor-grid">
-            <div class="eje-box">
-                <div class="eje-titulo">Eje Y</div>
-                <span class="valor-fb" id="fbPosY">--°</span>
-                <span class="estado-fb" id="fbEstadoY">--</span>
+            <div class="sensor-box">
+                <div class="sensor-titulo">Resolución</div>
+                <span class="valor-fb" id="fbBits">-- <span style="font-size: 14px;">bits</span></span>
             </div>
-            
-            <div class="eje-box">
-                <div class="eje-titulo">Eje Z</div>
-                <span class="valor-fb" id="fbPosZ">--°</span>
-                <span class="estado-fb" id="fbEstadoZ">--</span>
+            <div class="sensor-box">
+                <div class="sensor-titulo">Voltaje</div>
+                <span class="valor-fb" id="fbVoltaje">-- <span style="font-size: 14px;">V</span></span>
+            </div>
+            <div class="sensor-box">
+                <div class="sensor-titulo">Ciclo PWM</div>
+                <span class="valor-fb" id="fbPwm">-- <span style="font-size: 14px;">%</span></span>
             </div>
         </div>
     </div>
 
+    <!-- CONTROL DE MOTOR -->
     <div class="card">
-        <h3>Calibración de Ejes</h3>
-        <p>Devuelve la máquina a la posición inicial (Centro / 0°).</p>
-        <div class="botones-calibracion">
-            <button class="btn-calibrar" id="btnCalibrar">Calibrar al Centro (0°)</button>
+        <h3>⚙️ Control de Motor</h3>
+        <p>Selecciona la dirección de giro. La velocidad (PWM) se ajusta automáticamente según el valor del potenciómetro.</p>
+        
+        <div class="motor-controls">
+            <button class="btn-izq" id="btnIzq">◀ Izquierda</button>
+            <button class="btn-stop" id="btnStop">🛑 Detener</button>
+            <button class="btn-der" id="btnDer">Derecha ▶</button>
         </div>
-        <div id="estadoAccion">Esperando acción...</div>
-    </div>
-
-    <div class="card">
-        <h3>Control de Movimiento (Eje Y)</h3>
-        <p>Ingresa el ángulo final a enviar para el eje Y.</p>
-        <input type="number" id="inputAnguloY" class="input-full" placeholder="Ej. 45 o -15">
-        <button id="btnEnviarY">Mover Eje Y</button>
-    </div>
-
-    <div class="card">
-        <h3>Control de Movimiento (Eje Z)</h3>
-        <p> Ingresa el ángulo final a enviar para el eje Z.</p>
-        <input type="number" id="inputAnguloZ" class="input-full" placeholder="Ej. 45 o -15">
-        <button id="btnEnviarZ">Mover Eje Z</button>
-    </div>
-
-    <div class="card">
-        <h3>Calculadora de Ángulo</h3>
-        <p>Ingrese las mediciones físicas</p>
-        <div>
-            <input type="number" id="catetoAdyacente" placeholder="Adyacente">
-            <input type="number" id="hipotenusa" placeholder="Hipotenusa">
-        </div>
-        <button id="btnCalcular">Calcular Ángulo</button>
-        <div id="resultadoAngulo">Ángulo: -- °</div>
+        
+        <div id="estadoAccion">Estado de Motor: Esperando comando...</div>
     </div>
 
     <script type="module">
@@ -192,7 +156,6 @@
             storageBucket: "exsos-login.firebasestorage.app",
             messagingSenderId: "254157261321",
             appId: "1:254157261321:web:449f88c3567303afa846d8",
-            measurementId: "G-35YQC4CCDH",
             databaseURL: "https://estacionamientouanl-default-rtdb.firebaseio.com" 
         };
 
@@ -201,102 +164,42 @@
 
         const estadoAccionTxt = document.getElementById("estadoAccion");
 
-        // 🟢 --- LECTURA EN TIEMPO REAL DESDE FIREBASE --- 🟢
-        const dmpRef = ref(db, 'DMP');
-        
-        onValue(dmpRef, (snapshot) => {
+        // 🟢 --- LECTURA CONSTANTE (POTENCIÓMETRO) --- 🟢
+        const sensoresRef = ref(db, 'Sensores');
+        onValue(sensoresRef, (snapshot) => {
             document.getElementById("estadoConexion").innerText = "🟢 Conectado en tiempo real";
             document.getElementById("estadoConexion").style.color = "#4dff88";
 
             if (snapshot.exists()) {
                 const data = snapshot.val();
-                
-                // Leemos Ángulos
-                const posY = data.ejes_xy?.Y !== undefined ? data.ejes_xy.Y : "--";
-                const posZ = data.ejes_xy?.Z !== undefined ? data.ejes_xy.Z : "--";
-                
-                // Leemos Estados (0 = Moviendo, 1 = Posicionado)
-                const estadoY = data.estado?.Y !== undefined ? data.estado.Y : 1; 
-                const estadoZ = data.estado?.Z !== undefined ? data.estado.Z : 1;
-
-                // Mostramos Ángulos en las cajas grandes
-                document.getElementById("fbPosY").innerText = posY !== "--" ? posY + "°" : "--°";
-                document.getElementById("fbPosZ").innerText = posZ !== "--" ? posZ + "°" : "--°";
-
-                // Lógica Visual Eje Y
-                const textoY = estadoY === 0 ? "⏳ Moviendo..." : "✅ Posicionado";
-                document.getElementById("fbEstadoY").innerText = textoY;
-                document.getElementById("fbEstadoY").style.color = estadoY === 0 ? "#ffcc00" : "#4dff88";
-
-                // Lógica Visual Eje Z
-                const textoZ = estadoZ === 0 ? "⏳ Moviendo..." : "✅ Posicionado";
-                document.getElementById("fbEstadoZ").innerText = textoZ;
-                document.getElementById("fbEstadoZ").style.color = estadoZ === 0 ? "#ffcc00" : "#4dff88";
+                document.getElementById("fbBits").innerHTML = `${data.Bits !== undefined ? data.Bits : "--"} <span style="font-size: 14px;">bits</span>`;
+                document.getElementById("fbVoltaje").innerHTML = `${data.Voltaje !== undefined ? data.Voltaje.toFixed(2) : "--"} <span style="font-size: 14px;">V</span>`;
+                document.getElementById("fbPwm").innerHTML = `${data.PWM !== undefined ? data.PWM : "--"} <span style="font-size: 14px;">%</span>`;
             }
         });
 
-        // --- CALIBRAR (MANDAR AL CENTRO) ---
-        document.getElementById("btnCalibrar").addEventListener("click", () => {
-            update(ref(db, 'DMP'), {
-                'ejes_xy/Y': 0,
-                'ejes_xy/Z': 0,
-                'estado/Y': 0, // 0 = Se está moviendo
-                'estado/Z': 0  // 0 = Se está moviendo
-            }).then(() => {
-                estadoAccionTxt.innerText = "Acción: Enviando a posición inicial (0°)...";
-            });
-        });
-
-        // --- ENVIAR EJE Y ---
-        document.getElementById("btnEnviarY").addEventListener("click", () => {
-            const valY = parseFloat(document.getElementById("inputAnguloY").value);
-            
-            if (isNaN(valY)) return alert("⚠️ Ingresa un número válido para Y.");
-            if (valY < -45 || valY > 45) return alert("❌ LIMITANTE FÍSICA: No se puede mover. Pon un ángulo entre -45 y 45.");
-
-            update(ref(db, 'DMP'), {
-                'ejes_xy/Y': valY,
-                'estado/Y': 0 // 0 = Se está moviendo
-            }).then(() => {
-                estadoAccionTxt.innerText = `Acción: Enviando instrucción de ${valY}° al Eje Y...`;
-            });
-        });
-
-        // --- ENVIAR EJE Z ---
-        document.getElementById("btnEnviarZ").addEventListener("click", () => {
-            const valZ = parseFloat(document.getElementById("inputAnguloZ").value);
-            
-            if (isNaN(valZ)) return alert("⚠️ Ingresa un número válido para Z.");
-            if (valZ < -45 || valZ > 45) return alert("❌ LIMITANTE FÍSICA: No se puede mover. Pon un ángulo entre -45 y 45.");
-
-            update(ref(db, 'DMP'), {
-                'ejes_xy/Z': valZ,
-                'estado/Z': 0 // 0 = Se está moviendo
-            }).then(() => {
-                estadoAccionTxt.innerText = `Acción: Enviando instrucción de ${valZ}° al Eje Z...`;
-            });
-        });
-
-        // --- CALCULADORA MATEMÁTICA ---
-        document.getElementById("btnCalcular").addEventListener("click", () => {
-            const adyacente = parseFloat(document.getElementById("catetoAdyacente").value);
-            const hipotenusa = parseFloat(document.getElementById("hipotenusa").value);
-
-            if (isNaN(adyacente) || isNaN(hipotenusa) || hipotenusa === 0) {
-                return alert("⚠️ Ingresa valores válidos. La hipotenusa no puede ser 0.");
+        // 🟢 --- LECTURA INICIAL DEL ESTADO DEL MOTOR --- 🟢
+        onValue(ref(db, 'Control/Motor'), (snapshot) => {
+            if (snapshot.exists()) {
+                estadoAccionTxt.innerText = `Estado de Motor: ${snapshot.val()}`;
             }
-            if (Math.abs(adyacente) > Math.abs(hipotenusa)) {
-                return alert("⚠️ El adyacente no puede ser mayor a la hipotenusa.");
-            }
-            
-            const valorExtra = 0.115 / 2;
-            const radianes = Math.acos((adyacente + valorExtra) / (hipotenusa + valorExtra));
-            const grados = radianes * (180 / Math.PI);
-
-            document.getElementById("resultadoAngulo").innerText = `Ángulo: ${grados.toFixed(5)}°`;
         });
+
+        // --- FUNCIONES DE CONTROL DE MOTOR (ENVÍO POR EVENTO) ---
+        function enviarComando(direccion) {
+            update(ref(db, 'Control'), {
+                'Motor': direccion
+            }).then(() => {
+                estadoAccionTxt.innerText = `Enviando comando: ${direccion}...`;
+            }).catch((error) => {
+                alert("Error al enviar el comando: " + error);
+            });
+        }
+
+        document.getElementById("btnIzq").addEventListener("click", () => enviarComando("Izquierda"));
+        document.getElementById("btnDer").addEventListener("click", () => enviarComando("Derecha"));
+        document.getElementById("btnStop").addEventListener("click", () => enviarComando("Stop"));
+
     </script>
-</body>
-</html>
 </body>
 </html>
