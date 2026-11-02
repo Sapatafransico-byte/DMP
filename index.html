@@ -1,113 +1,340 @@
-
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interfaz DMP</title>
+    <title>Percepción y Control de Frutas</title>
     <style>
-        /* Estilos base con diseño oscuro estilo Discord/EXSOS */
-        body { 
-            font-family: 'Segoe UI', sans-serif; 
-            background: #111214; 
-            color: white; 
-            text-align: center; 
-            margin: 0; 
-            padding: 20px; 
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: #111214;
+            color: #f2f3f5;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
         }
-        /* Cabecera DMP */
-        .header-dmp { 
-            background: #152191; 
-            padding: 20px; 
-            font-size: 2.5em; 
-            font-weight: bold; 
-            border-radius: 15px; 
-            margin-bottom: 30px; 
-            box-shadow: 0 8px 20px rgba(0,0,0,0.5);
-            letter-spacing: 2px;
+        .header-main {
+            background: #152191;
+            padding: 18px 24px;
+            font-size: 1.75em;
+            font-weight: 700;
+            border-radius: 14px;
+            margin: 0 auto 24px auto;
+            max-width: 920px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.45);
+            letter-spacing: 1px;
         }
-        /* Tarjetas de control */
-        .card { 
-            background: #2b2d31; 
-            padding: 25px; 
-            border-radius: 15px; 
-            margin: 15px auto; 
-            max-width: 450px; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3); 
+        .grid-layout {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 18px;
+            max-width: 920px;
+            margin: 0 auto;
         }
-        h3 { margin-top: 0; color: #00c6ff; }
-        p { color: #b5bac1; font-size: 14px; }
-        
-        /* Inputs y Botones */
-        input { 
-            padding: 12px; 
-            margin: 10px; 
-            border-radius: 8px; 
-            border: none; 
-            width: 85%; 
-            background: #1e1f22; 
-            color: white;
-            text-align: center; 
-            font-size: 16px;
+        .card {
+            background: #2b2d31;
+            padding: 22px;
+            border-radius: 14px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            text-align: left;
         }
-        button { 
-            background: #5865f2; 
-            color: white; 
-            padding: 12px 25px; 
-            border: none; 
-            border-radius: 8px; 
-            font-weight: bold; 
-            font-size: 16px;
-            cursor: pointer; 
-            transition: 0.3s; 
-            width: 90%;
+        .card-full {
+            grid-column: 1 / -1;
+        }
+        h3 {
+            margin: 0 0 6px 0;
+            color: #00c6ff;
+            font-size: 1.05rem;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+        }
+        p.sub {
+            color: #b5bac1;
+            font-size: 13px;
+            margin: 0 0 16px 0;
+        }
+
+        /* Indicadores de Supervisión */
+        .supervision-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+        .metric-box {
+            background: #1e1f22;
+            padding: 14px 10px;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid #35373c;
+        }
+        .metric-label {
+            display: block;
+            font-size: 11px;
+            color: #949ba4;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+        .metric-value {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #ffffff;
+        }
+
+        /* Botones minimalistas */
+        .btn-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
             margin-top: 10px;
         }
-        button:hover { background: #4752c4; transform: scale(1.05); }
-        
-        .calibrar-btn { background: #ed4245; }
-        .calibrar-btn:hover { background: #c9383a; }
-        
-        #resultadoAngulo {
-            margin-top: 20px;
-            font-size: 20px;
-            background: #1e1f22;
-            padding: 10px;
+        button {
+            flex: 1;
+            background: #5865f2;
+            color: white;
+            padding: 12px 16px;
+            border: none;
             border-radius: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+            min-width: 130px;
+        }
+        button:hover { background: #4752c4; }
+        button:active { transform: scale(0.98); }
+
+        .btn-green { background: #23a55a; }
+        .btn-green:hover { background: #1d8a4b; }
+
+        .btn-warn { background: #f0b232; color: #111214; }
+        .btn-warn:hover { background: #d89e26; }
+
+        .btn-danger { background: #ed4245; }
+        .btn-danger:hover { background: #c9383a; }
+
+        /* Sliders */
+        .slider-group {
+            margin-top: 14px;
+            background: #1e1f22;
+            padding: 12px 14px;
+            border-radius: 10px;
+        }
+        .slider-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            color: #dbdee1;
+            margin-bottom: 6px;
+        }
+        input[type="range"] {
+            width: 100%;
+            accent-color: #00c6ff;
+            cursor: pointer;
+        }
+
+        /* Estaciones del Ciclo Actual */
+        .stations-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+        @media (max-width: 640px) {
+            .stations-grid { grid-template-columns: repeat(2, 1fr); }
+            .supervision-grid { grid-template-columns: 1fr; }
+        }
+        .station-box {
+            background: #1e1f22;
+            padding: 14px;
+            border-radius: 10px;
+            text-align: center;
+            border-left: 4px solid #4e5058;
+        }
+        .station-title {
+            font-size: 12px;
+            color: #949ba4;
+            margin-bottom: 6px;
+        }
+        .station-res {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: #dbdee1;
+        }
+
+        /* Colores de estado de fruta */
+        .tag-VERDE { color: #23a55a !important; border-left-color: #23a55a !important; }
+        .tag-INTERMEDIO { color: #f0b232 !important; border-left-color: #f0b232 !important; }
+        .tag-MADURA { color: #ed4245 !important; border-left-color: #ed4245 !important; }
+
+        /* Tabla de Historial de 5 Ciclos */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 8px;
+            font-size: 13.5px;
+        }
+        th, td {
+            padding: 10px 12px;
+            text-align: center;
+            border-bottom: 1px solid #35373c;
+        }
+        th {
+            color: #949ba4;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 11.5px;
+            background: #1e1f22;
+        }
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            background: #1e1f22;
+        }
+        .status-pill {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            background: #1e1f22;
+            color: #00c6ff;
+            border: 1px solid #00c6ff44;
         }
     </style>
 </head>
 <body>
 
-    <div class="header-dmp">DMP</div>
+    <div class="header-main">Percepción y Control de Frutas</div>
 
-    <div class="card">
-        <h3>Calibración Inicial</h3>
-        <p>Establece la posición de los ejes Z y Y en 0.</p>
-        <button class="calibrar-btn" id="btnCalibrar">CALIBRAR EJES (Z=0, Y=0)</button>
-    </div>
+    <div class="grid-layout">
 
-    <div class="card">
-        <h3>Calculadora de Ángulo (Trigonometría)</h3>
-        <p>Ingresa los valores para obtener el ángulo mediante Arcocoseno.</p>
-        <input type="number" id="catetoAdyacente" placeholder="Cateto Adyacente">
-        <input type="number" id="hipotenusa" placeholder="Hipotenusa">
-        <button id="btnCalcular">Calcular Ángulo</button>
-        <div id="resultadoAngulo">Ángulo: -- °</div>
-    </div>
+        <!-- TARJETA 1: PARÁMETROS DE CONTROL -->
+        <div class="card">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <h3>Parámetros de Control</h3>
+                <span class="status-pill" id="lblEstadoSistema">ESPERANDO</span>
+            </div>
+            <p class="sub">Control remoto de cámara, fondo y desatasco de banda.</p>
 
-    <div class="card">
-        <h3>Control de Ejes X y Y</h3>
-        <p>Atención: El valor debe estar entre -45 y +45</p>
-        <input type="number" id="inputAngulo" placeholder="Ingresa ángulo a mandar">
-        <button id="btnEnviarAngulo">Enviar Ángulo</button>
+            <div class="btn-row">
+                <button id="btnCapturarFondo">Capturar Fondo (F)</button>
+                <button class="btn-green" id="btnIniciarBusqueda">Iniciar Búsqueda (B)</button>
+            </div>
+
+            <div class="slider-group">
+                <div class="slider-header">
+                    <span>Tamaño del Recuadro de Detección</span>
+                    <strong id="valTamano">16%</strong>
+                </div>
+                <input type="range" id="sliderTamano" min="8" max="40" step="2" value="16">
+            </div>
+
+            <div class="slider-group">
+                <div class="slider-header">
+                    <span>Rigor de Bloqueo de Fondo</span>
+                    <strong id="valRigor">14</strong>
+                </div>
+                <input type="range" id="sliderRigor" min="4" max="40" step="2" value="14">
+            </div>
+
+            <p class="sub" style="margin: 16px 0 6px 0;">Retroceso de emergencia (si se atora la banda):</p>
+            <div class="btn-row">
+                <button class="btn-warn" id="btnRetro1">⏪ Retroceder 1 Ciclo (60mm)</button>
+                <button class="btn-danger" id="btnRetro2">⏪ Retroceder 2 Ciclos (120mm)</button>
+            </div>
+        </div>
+
+        <!-- TARJETA 2: PARÁMETROS DE SUPERVISIÓN -->
+        <div class="card">
+            <h3>Parámetros de Supervisión</h3>
+            <p class="sub">Monitoreo en tiempo real de clasificación, posición y giroscopio.</p>
+
+            <div class="supervision-grid">
+                <div class="metric-box">
+                    <span class="metric-label">Última Clasificación</span>
+                    <span class="metric-value" id="supClasificacion">--</span>
+                </div>
+                <div class="metric-box">
+                    <span class="metric-label">Posición (Ultrasónico)</span>
+                    <span class="metric-value" id="supDistancia">-- cm</span>
+                </div>
+                <div class="metric-box">
+                    <span class="metric-label">Ángulo (Giroscopio)</span>
+                    <span class="metric-value" id="supAngulo">-- °</span>
+                </div>
+            </div>
+
+            <div class="metric-box" style="margin-top: 10px; display:flex; justify-content:space-between; align-items:center; padding: 12px 16px;">
+                <span class="metric-label" style="margin:0;">Estado del Fondo en Cámara</span>
+                <span id="supFondoEstado" style="font-weight:700; color:#f0b232;">Pendiente (Presiona F)</span>
+            </div>
+
+            <div class="btn-row" style="margin-top: 16px;">
+                <button id="btnSiguienteEstacion" style="background:#35373c;">Forzar Siguiente Parada ⏭</button>
+            </div>
+        </div>
+
+        <!-- TARJETA 3: RESULTADOS DE CADA FRUTA (CICLO ACTUAL) -->
+        <div class="card card-full">
+            <h3>Resultados del Ciclo Actual</h3>
+            <p class="sub">Detección estación por estación durante el recorrido de la banda.</p>
+
+            <div class="stations-grid">
+                <div class="station-box" id="boxEst1">
+                    <div class="station-title">FRUTA 1 (0 mm)</div>
+                    <div class="station-res" id="resEst1">--</div>
+                </div>
+                <div class="station-box" id="boxEst2">
+                    <div class="station-title">FRUTA 2 (60 mm)</div>
+                    <div class="station-res" id="resEst2">--</div>
+                </div>
+                <div class="station-box" id="boxEst3">
+                    <div class="station-title">FRUTA 3 (120 mm)</div>
+                    <div class="station-res" id="resEst3">--</div>
+                </div>
+                <div class="station-box" id="boxEst4">
+                    <div class="station-title">FRUTA 4 (180 mm)</div>
+                    <div class="station-res" id="resEst4">--</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TARJETA 4: HISTORIAL DE LOS ÚLTIMOS 5 CICLOS -->
+        <div class="card card-full">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                    <h3>Historial de Ciclos Anteriores (Últimos 5)</h3>
+                    <p class="sub" style="margin-bottom:8px;">Registro automático al finalizar cada recorrido de 4 frutas.</p>
+                </div>
+                <button id="btnLimpiarHistorial" style="flex:0; min-width:auto; padding:8px 14px; font-size:12px; background:#35373c;">Limpiar</button>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Hora</th>
+                        <th>Fruta 1 (0mm)</th>
+                        <th>Fruta 2 (60mm)</th>
+                        <th>Fruta 3 (120mm)</th>
+                        <th>Fruta 4 (180mm)</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaHistorial">
+                    <tr><td colspan="5" style="color:#949ba4;">Sin ciclos registrados aún.</td></tr>
+                </tbody>
+            </table>
+        </div>
+
     </div>
 
     <script type="module">
-        // Importamos Firebase Base y Realtime Database (la que usa el ESP32)
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-        import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+        import { getDatabase, ref, set, update, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
-        // 🔥 TUS CREDENCIALES (Añadí la URL de la base de datos de tu ESP32)
         const firebaseConfig = {
             apiKey: "AIzaSyB8LeQ1UNG6XqOpVWAMyde05JOvlWRENvU",
             authDomain: "exsos-login.firebaseapp.com",
@@ -115,73 +342,137 @@
             storageBucket: "exsos-login.firebasestorage.app",
             messagingSenderId: "254157261321",
             appId: "1:254157261321:web:449f88c3567303afa846d8",
-            measurementId: "G-35YQC4CCDH",
-            databaseURL: "https://estacionamientouanl-default-rtdb.firebaseio.com" 
+            databaseURL: "https://estacionamientouanl-default-rtdb.firebaseio.com"
         };
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // --- FUNCION 1: CALIBRAR EJES ---
-        document.getElementById("btnCalibrar").addEventListener("click", () => {
-            // Guarda un 0 en la ruta DMP/calibracion de Firebase
-            set(ref(db, 'DMP/calibracion'), {
-                Z: 0,
-                Y: 0
-            }).then(() => {
-                alert("✅ ¡Calibración exitosa! Ejes Z y Y reseteados a 0.");
-            }).catch((error) => {
-                console.error("Error al calibrar: ", error);
-                alert("Error de conexión con Firebase.");
-            });
+        // --- 1. BOTONES DE PARÁMETROS DE CONTROL ---
+        document.getElementById("btnCapturarFondo").addEventListener("click", () => {
+            update(ref(db, "WebControl"), { cmd_fondo: true, timestamp: Date.now() });
         });
 
-        // --- FUNCION 2: CALCULAR ÁNGULO ---
-        document.getElementById("btnCalcular").addEventListener("click", () => {
-            const adyacente = parseFloat(document.getElementById("catetoAdyacente").value);
-            const hipotenusa = parseFloat(document.getElementById("hipotenusa").value);
-
-            // Validaciones matemáticas
-            if (isNaN(adyacente) || isNaN(hipotenusa) || hipotenusa === 0) {
-                alert("⚠️ Ingresa valores numéricos válidos. La hipotenusa no puede ser 0.");
-                return;
-            }
-            if (Math.abs(adyacente) > Math.abs(hipotenusa)) {
-                alert("⚠️ El cateto adyacente no puede ser mayor a la hipotenusa.");
-                return;
-            }
-
-            // Operación matemática: Acos(A/H) en radianes, convertido a grados
-            const radianes = Math.acos(adyacente / hipotenusa);
-            const grados = radianes * (180 / Math.PI);
-
-            document.getElementById("resultadoAngulo").innerText = `Ángulo: ${grados.toFixed(2)}°`;
+        document.getElementById("btnIniciarBusqueda").addEventListener("click", () => {
+            update(ref(db, "Control"), { estado_sistema: "BUSCANDO", leido: 0 });
+            update(ref(db, "WebControl"), { cmd_iniciar: true, timestamp: Date.now() });
         });
 
-        // --- FUNCION 3: ENVIAR ÁNGULO CON RESTRICCIONES ---
-        document.getElementById("btnEnviarAngulo").addEventListener("click", () => {
-            const angulo = parseFloat(document.getElementById("inputAngulo").value);
+        document.getElementById("btnSiguienteEstacion").addEventListener("click", () => {
+            update(ref(db, "Control"), { leido: 1 });
+        });
 
-            if (isNaN(angulo)) {
-                alert("⚠️ Por favor, ingresa un número válido.");
+        // Sliders de recuadro y rigor
+        const sliderTamano = document.getElementById("sliderTamano");
+        const valTamano = document.getElementById("valTamano");
+        sliderTamano.addEventListener("input", (e) => {
+            valTamano.innerText = `${e.target.value}%`;
+            update(ref(db, "WebControl"), { tamano_recuadro: parseInt(e.target.value) / 100.0 });
+        });
+
+        const sliderRigor = document.getElementById("sliderRigor");
+        const valRigor = document.getElementById("valRigor");
+        sliderRigor.addEventListener("input", (e) => {
+            valRigor.innerText = e.target.value;
+            update(ref(db, "WebControl"), { margen_fondo: parseInt(e.target.value) });
+        });
+
+        // Botones de Retroceso por si se atora (1 ciclo = 60mm, 2 ciclos = 120mm)
+        document.getElementById("btnRetro1").addEventListener("click", () => {
+            update(ref(db, "Control"), { retroceder_ciclos: 1, estado_sistema: "RETROCEDIENDO" });
+        });
+
+        document.getElementById("btnRetro2").addEventListener("click", () => {
+            update(ref(db, "Control"), { retroceder_ciclos: 2, estado_sistema: "RETROCEDIENDO" });
+        });
+
+        document.getElementById("btnLimpiarHistorial").addEventListener("click", () => {
+            set(ref(db, "HistorialCiclos"), null);
+            set(ref(db, "CicloActual"), { e1: "--", e2: "--", e3: "--", e4: "--" });
+        });
+
+        // --- 2. ESCUCHA EN TIEMPO REAL DE SUPERVISIÓN Y CONTROL ---
+        onValue(ref(db, "Control"), (snap) => {
+            const d = snap.val();
+            if (!d) return;
+            document.getElementById("lblEstadoSistema").innerText = d.estado_sistema || "ESPERANDO";
+
+            const res = d.resultado || "--";
+            const elClas = document.getElementById("supClasificacion");
+            elClas.innerText = res;
+            elClas.className = "metric-value tag-" + res;
+        });
+
+        onValue(ref(db, "Sensores"), (snap) => {
+            const s = snap.val();
+            if (!s) return;
+
+            if (s.DistanciaActual !== undefined) {
+                document.getElementById("supDistancia").innerText = `${Number(s.DistanciaActual).toFixed(1)} cm`;
+            }
+            // Soporta el nuevo Giroscopio (AnguloGiroscopio) o el campo anterior mientras cambias el sensor
+            if (s.AnguloGiroscopio !== undefined) {
+                document.getElementById("supAngulo").innerText = `${Number(s.AnguloGiroscopio).toFixed(1)} °`;
+            } else if (s.InclinacionEstado !== undefined) {
+                document.getElementById("supAngulo").innerText = s.InclinacionEstado;
+            }
+        });
+
+        onValue(ref(db, "WebControl/fondo_ok"), (snap) => {
+            const ok = snap.val();
+            const el = document.getElementById("supFondoEstado");
+            if (ok) {
+                el.innerText = "Bloqueado OK";
+                el.style.color = "#23a55a";
+            } else {
+                el.innerText = "Pendiente (Presiona F)";
+                el.style.color = "#f0b232";
+            }
+        });
+
+        // --- 3. RESULTADOS DEL CICLO ACTUAL ---
+        function pintarEstacion(num, valor) {
+            const box = document.getElementById("boxEst" + num);
+            const txt = document.getElementById("resEst" + num);
+            const v = valor || "--";
+            txt.innerText = v;
+            box.className = "station-box tag-" + v;
+            txt.className = "station-res tag-" + v;
+        }
+
+        onValue(ref(db, "CicloActual"), (snap) => {
+            const c = snap.val() || {};
+            pintarEstacion(1, c.e1);
+            pintarEstacion(2, c.e2);
+            pintarEstacion(3, c.e3);
+            pintarEstacion(4, c.e4);
+        });
+
+        // --- 4. TABLA DE LOS ÚLTIMOS 5 CICLOS ---
+        function badgeFruta(v) {
+            const val = v || "--";
+            return `<span class="badge tag-${val}">${val}</span>`;
+        }
+
+        onValue(ref(db, "HistorialCiclos"), (snap) => {
+            const data = snap.val();
+            const tbody = document.getElementById("tablaHistorial");
+            if (!data) {
+                tbody.innerHTML = `<tr><td colspan="5" style="color:#949ba4;">Sin ciclos registrados aún.</td></tr>`;
                 return;
             }
+            const lista = Array.isArray(data) ? data : Object.values(data);
+            const ultimos5 = lista.slice(-5).reverse();
 
-            // RESTRICCIÓN SOLICITADA
-            if (angulo < -45 || angulo > 45) {
-                alert("❌ ERROR: El ángulo para el eje Y y X no puede ser mayor a 45 ni menor a -45.");
-                return;
-            }
-
-            // Si pasa la prueba, se manda a Firebase
-            set(ref(db, 'DMP/ejes_xy'), {
-                X: angulo,
-                Y: angulo
-            }).then(() => {
-                alert(`✅ Ángulo de ${angulo}° enviado correctamente a los ejes X y Y.`);
-            }).catch((error) => {
-                console.error("Error al enviar ángulo: ", error);
-            });
+            tbody.innerHTML = ultimos5.map((item) => `
+                <tr>
+                    <td style="color:#b5bac1;">${item.hora || "--:--"}</td>
+                    <td>${badgeFruta(item.e1)}</td>
+                    <td>${badgeFruta(item.e2)}</td>
+                    <td>${badgeFruta(item.e3)}</td>
+                    <td>${badgeFruta(item.e4)}</td>
+                </tr>
+            `).join("");
         });
     </script>
 </body>
