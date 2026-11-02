@@ -1,11 +1,11 @@
-<!DOCTYPE html>
+
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Percepción</title>
+    <title>Interfaz DMP</title>
     <style>
-        /* Estilos base */
+        /* Estilos base con diseño oscuro estilo Discord/EXSOS */
         body { 
             font-family: 'Segoe UI', sans-serif; 
             background: #111214; 
@@ -14,141 +14,100 @@
             margin: 0; 
             padding: 20px; 
         }
-         
-        /* Cabecera con Logos */
-        .header-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        /* Cabecera DMP */
+        .header-dmp { 
             background: #152191; 
-            padding: 15px 30px; 
+            padding: 20px; 
+            font-size: 2.5em; 
+            font-weight: bold; 
             border-radius: 15px; 
             margin-bottom: 30px; 
             box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+            letter-spacing: 2px;
         }
-        .header-logo { height: 80px; object-fit: contain; }
-        .header-title { font-size: 1.8em; font-weight: bold; letter-spacing: 1px; margin: 0; }
-
-        /* Tarjetas */
+        /* Tarjetas de control */
         .card { 
             background: #2b2d31; 
             padding: 25px; 
             border-radius: 15px; 
             margin: 15px auto; 
-            max-width: 600px; 
+            max-width: 450px; 
             box-shadow: 0 4px 15px rgba(0,0,0,0.3); 
         }
+        h3 { margin-top: 0; color: #00c6ff; }
+        p { color: #b5bac1; font-size: 14px; }
         
-        .monitor-card {
-            border: 2px solid #5865f2;
-            background: #1e1f22;
+        /* Inputs y Botones */
+        input { 
+            padding: 12px; 
+            margin: 10px; 
+            border-radius: 8px; 
+            border: none; 
+            width: 85%; 
+            background: #1e1f22; 
+            color: white;
+            text-align: center; 
+            font-size: 16px;
         }
-
-        h3 { margin-top: 0; color: #00c6ff; font-size: 1.4em;}
-        p { color: #b5bac1; font-size: 14px; margin-bottom: 15px;}
-        
-        /* Botones de Control de Motor */
-        .motor-controls { display: flex; gap: 10px; justify-content: center; margin-top: 15px;}
         button { 
-            color: white; padding: 12px 20px; 
-            border: none; border-radius: 8px; font-weight: bold; 
-            font-size: 16px; cursor: pointer; transition: 0.3s; 
-            width: 30%;
-        }
-        button:hover { transform: scale(1.05); filter: brightness(1.2); }
-        
-        .btn-izq { background: #e67e22; }
-        .btn-stop { background: #e74c3c; width: 40%;}
-        .btn-der { background: #2ecc71; }
-        
-        #estadoAccion {
-            margin-top: 20px; font-size: 16px; color: #b5bac1; 
-            font-weight: bold; background: #111214; padding: 15px; 
-            border-radius: 8px; border: 1px solid #3a3c41;
-        }
-
-        /* Diseño de cuadrícula para sensores */
-        .monitor-grid {
-            display: flex;
-            justify-content: space-between;
-            gap: 10px;
-            margin-top: 15px;
-        }
-        .sensor-box {
-            background: #111214;
-            border: 1px solid #3a3c41;
-            border-radius: 10px;
-            padding: 20px 10px;
-            width: 32%; 
-            box-sizing: border-box;
-            text-align: center;
-        }
-        .sensor-titulo {
-            font-size: 14px;
-            color: #b5bac1;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 10px;
-            font-weight: bold;
-        }
-        .valor-fb { 
-            color: #4dff88; 
+            background: #5865f2; 
+            color: white; 
+            padding: 12px 25px; 
+            border: none; 
+            border-radius: 8px; 
             font-weight: bold; 
-            font-size: 28px; 
-            display: block;
+            font-size: 16px;
+            cursor: pointer; 
+            transition: 0.3s; 
+            width: 90%;
+            margin-top: 10px;
+        }
+        button:hover { background: #4752c4; transform: scale(1.05); }
+        
+        .calibrar-btn { background: #ed4245; }
+        .calibrar-btn:hover { background: #c9383a; }
+        
+        #resultadoAngulo {
+            margin-top: 20px;
+            font-size: 20px;
+            background: #1e1f22;
+            padding: 10px;
+            border-radius: 8px;
         }
     </style>
 </head>
 <body>
 
-    <div class="header-container">
-        <img src="https://i.imgur.com/YqsTbxy.png" alt="UANL" class="header-logo">
-        <div class="header-title">Control y Monitoreo </div>
-        <img src="https://i.imgur.com/ThuJm05.png" alt="FIME" class="header-logo">
-    </div>
+    <div class="header-dmp">DMP</div>
 
-    <!-- MONITOR DE SENSORES -->
-    <div class="card monitor-card">
-        <h3>📡 Monitor del Potenciómetro</h3>
-        <p style="margin-bottom: 5px;">Lectura analógica constante desde el pin 36 del ESP32.</p>
-        <div id="estadoConexion" style="font-size: 12px; color: #ffcc00; margin-bottom: 15px;">
-            Conectando a Firebase...
-        </div>
-
-        <div class="monitor-grid">
-            <div class="sensor-box">
-                <div class="sensor-titulo">Resolución</div>
-                <span class="valor-fb" id="fbBits">-- <span style="font-size: 14px;">bits</span></span>
-            </div>
-            <div class="sensor-box">
-                <div class="sensor-titulo">Voltaje</div>
-                <span class="valor-fb" id="fbVoltaje">-- <span style="font-size: 14px;">V</span></span>
-            </div>
-            <div class="sensor-box">
-                <div class="sensor-titulo">Ciclo PWM</div>
-                <span class="valor-fb" id="fbPwm">-- <span style="font-size: 14px;">%</span></span>
-            </div>
-        </div>
-    </div>
-
-    <!-- CONTROL DE MOTOR -->
     <div class="card">
-        <h3>⚙️ Control de Motor</h3>
-        <p>Selecciona la dirección de giro. La velocidad (PWM) se ajusta automáticamente según el valor del potenciómetro.</p>
-        
-        <div class="motor-controls">
-            <button class="btn-izq" id="btnIzq">◀ Izquierda</button>
-            <button class="btn-stop" id="btnStop">🛑 Detener</button>
-            <button class="btn-der" id="btnDer">Derecha ▶</button>
-        </div>
-        
-        <div id="estadoAccion">Estado de Motor: Esperando comando...</div>
+        <h3>Calibración Inicial</h3>
+        <p>Establece la posición de los ejes Z y Y en 0.</p>
+        <button class="calibrar-btn" id="btnCalibrar">CALIBRAR EJES (Z=0, Y=0)</button>
+    </div>
+
+    <div class="card">
+        <h3>Calculadora de Ángulo (Trigonometría)</h3>
+        <p>Ingresa los valores para obtener el ángulo mediante Arcocoseno.</p>
+        <input type="number" id="catetoAdyacente" placeholder="Cateto Adyacente">
+        <input type="number" id="hipotenusa" placeholder="Hipotenusa">
+        <button id="btnCalcular">Calcular Ángulo</button>
+        <div id="resultadoAngulo">Ángulo: -- °</div>
+    </div>
+
+    <div class="card">
+        <h3>Control de Ejes X y Y</h3>
+        <p>Atención: El valor debe estar entre -45 y +45</p>
+        <input type="number" id="inputAngulo" placeholder="Ingresa ángulo a mandar">
+        <button id="btnEnviarAngulo">Enviar Ángulo</button>
     </div>
 
     <script type="module">
+        // Importamos Firebase Base y Realtime Database (la que usa el ESP32)
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-        import { getDatabase, ref, update, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+        import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
+        // 🔥 TUS CREDENCIALES (Añadí la URL de la base de datos de tu ESP32)
         const firebaseConfig = {
             apiKey: "AIzaSyB8LeQ1UNG6XqOpVWAMyde05JOvlWRENvU",
             authDomain: "exsos-login.firebaseapp.com",
@@ -156,50 +115,74 @@
             storageBucket: "exsos-login.firebasestorage.app",
             messagingSenderId: "254157261321",
             appId: "1:254157261321:web:449f88c3567303afa846d8",
+            measurementId: "G-35YQC4CCDH",
             databaseURL: "https://estacionamientouanl-default-rtdb.firebaseio.com" 
         };
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        const estadoAccionTxt = document.getElementById("estadoAccion");
-
-        // 🟢 --- LECTURA CONSTANTE (POTENCIÓMETRO) --- 🟢
-        const sensoresRef = ref(db, 'Sensores');
-        onValue(sensoresRef, (snapshot) => {
-            document.getElementById("estadoConexion").innerText = "🟢 Conectado en tiempo real";
-            document.getElementById("estadoConexion").style.color = "#4dff88";
-
-            if (snapshot.exists()) {
-                const data = snapshot.val();
-                document.getElementById("fbBits").innerHTML = `${data.Bits !== undefined ? data.Bits : "--"} <span style="font-size: 14px;">bits</span>`;
-                document.getElementById("fbVoltaje").innerHTML = `${data.Voltaje !== undefined ? data.Voltaje.toFixed(2) : "--"} <span style="font-size: 14px;">V</span>`;
-                document.getElementById("fbPwm").innerHTML = `${data.PWM !== undefined ? data.PWM : "--"} <span style="font-size: 14px;">%</span>`;
-            }
-        });
-
-        // 🟢 --- LECTURA INICIAL DEL ESTADO DEL MOTOR --- 🟢
-        onValue(ref(db, 'Control/Motor'), (snapshot) => {
-            if (snapshot.exists()) {
-                estadoAccionTxt.innerText = `Estado de Motor: ${snapshot.val()}`;
-            }
-        });
-
-        // --- FUNCIONES DE CONTROL DE MOTOR (ENVÍO POR EVENTO) ---
-        function enviarComando(direccion) {
-            update(ref(db, 'Control'), {
-                'Motor': direccion
+        // --- FUNCION 1: CALIBRAR EJES ---
+        document.getElementById("btnCalibrar").addEventListener("click", () => {
+            // Guarda un 0 en la ruta DMP/calibracion de Firebase
+            set(ref(db, 'DMP/calibracion'), {
+                Z: 0,
+                Y: 0
             }).then(() => {
-                estadoAccionTxt.innerText = `Enviando comando: ${direccion}...`;
+                alert("✅ ¡Calibración exitosa! Ejes Z y Y reseteados a 0.");
             }).catch((error) => {
-                alert("Error al enviar el comando: " + error);
+                console.error("Error al calibrar: ", error);
+                alert("Error de conexión con Firebase.");
             });
-        }
+        });
 
-        document.getElementById("btnIzq").addEventListener("click", () => enviarComando("Izquierda"));
-        document.getElementById("btnDer").addEventListener("click", () => enviarComando("Derecha"));
-        document.getElementById("btnStop").addEventListener("click", () => enviarComando("Stop"));
+        // --- FUNCION 2: CALCULAR ÁNGULO ---
+        document.getElementById("btnCalcular").addEventListener("click", () => {
+            const adyacente = parseFloat(document.getElementById("catetoAdyacente").value);
+            const hipotenusa = parseFloat(document.getElementById("hipotenusa").value);
 
+            // Validaciones matemáticas
+            if (isNaN(adyacente) || isNaN(hipotenusa) || hipotenusa === 0) {
+                alert("⚠️ Ingresa valores numéricos válidos. La hipotenusa no puede ser 0.");
+                return;
+            }
+            if (Math.abs(adyacente) > Math.abs(hipotenusa)) {
+                alert("⚠️ El cateto adyacente no puede ser mayor a la hipotenusa.");
+                return;
+            }
+
+            // Operación matemática: Acos(A/H) en radianes, convertido a grados
+            const radianes = Math.acos(adyacente / hipotenusa);
+            const grados = radianes * (180 / Math.PI);
+
+            document.getElementById("resultadoAngulo").innerText = `Ángulo: ${grados.toFixed(2)}°`;
+        });
+
+        // --- FUNCION 3: ENVIAR ÁNGULO CON RESTRICCIONES ---
+        document.getElementById("btnEnviarAngulo").addEventListener("click", () => {
+            const angulo = parseFloat(document.getElementById("inputAngulo").value);
+
+            if (isNaN(angulo)) {
+                alert("⚠️ Por favor, ingresa un número válido.");
+                return;
+            }
+
+            // RESTRICCIÓN SOLICITADA
+            if (angulo < -45 || angulo > 45) {
+                alert("❌ ERROR: El ángulo para el eje Y y X no puede ser mayor a 45 ni menor a -45.");
+                return;
+            }
+
+            // Si pasa la prueba, se manda a Firebase
+            set(ref(db, 'DMP/ejes_xy'), {
+                X: angulo,
+                Y: angulo
+            }).then(() => {
+                alert(`✅ Ángulo de ${angulo}° enviado correctamente a los ejes X y Y.`);
+            }).catch((error) => {
+                console.error("Error al enviar ángulo: ", error);
+            });
+        });
     </script>
 </body>
 </html>
