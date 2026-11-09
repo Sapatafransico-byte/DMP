@@ -1,479 +1,307 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Percepción y Control de Frutas</title>
-    <style>
-        * { box-sizing: border-box; }
-        body {
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            background: #111214;
-            color: #f2f3f5;
-            margin: 0;
-            padding: 20px;
-            text-align: center;
-        }
-        .header-main {
-            background: #152191;
-            padding: 18px 24px;
-            font-size: 1.75em;
-            font-weight: 700;
-            border-radius: 14px;
-            margin: 0 auto 24px auto;
-            max-width: 920px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.45);
-            letter-spacing: 1px;
-        }
-        .grid-layout {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 18px;
-            max-width: 920px;
-            margin: 0 auto;
-        }
-        .card {
-            background: #2b2d31;
-            padding: 22px;
-            border-radius: 14px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-            text-align: left;
-        }
-        .card-full {
-            grid-column: 1 / -1;
-        }
-        h3 {
-            margin: 0 0 6px 0;
-            color: #00c6ff;
-            font-size: 1.05rem;
-            text-transform: uppercase;
-            letter-spacing: 0.8px;
-        }
-        p.sub {
-            color: #b5bac1;
-            font-size: 13px;
-            margin: 0 0 16px 0;
-        }
-
-        /* Indicadores de Supervisión */
-        .supervision-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            margin-bottom: 14px;
-        }
-        .metric-box {
-            background: #1e1f22;
-            padding: 14px 10px;
-            border-radius: 10px;
-            text-align: center;
-            border: 1px solid #35373c;
-        }
-        .metric-label {
-            display: block;
-            font-size: 11px;
-            color: #949ba4;
-            text-transform: uppercase;
-            margin-bottom: 6px;
-        }
-        .metric-value {
-            font-size: 1.25rem;
-            font-weight: 700;
-            color: #ffffff;
-        }
-
-        /* Botones minimalistas */
-        .btn-row {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            margin-top: 10px;
-        }
-        button {
-            flex: 1;
-            background: #5865f2;
-            color: white;
-            padding: 12px 16px;
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
-            font-size: 14px;
-            cursor: pointer;
-            transition: background 0.2s, transform 0.1s;
-            min-width: 130px;
-        }
-        button:hover { background: #4752c4; }
-        button:active { transform: scale(0.98); }
-
-        .btn-green { background: #23a55a; }
-        .btn-green:hover { background: #1d8a4b; }
-
-        .btn-warn { background: #f0b232; color: #111214; }
-        .btn-warn:hover { background: #d89e26; }
-
-        .btn-danger { background: #ed4245; }
-        .btn-danger:hover { background: #c9383a; }
-
-        /* Sliders */
-        .slider-group {
-            margin-top: 14px;
-            background: #1e1f22;
-            padding: 12px 14px;
-            border-radius: 10px;
-        }
-        .slider-header {
-            display: flex;
-            justify-content: space-between;
-            font-size: 13px;
-            color: #dbdee1;
-            margin-bottom: 6px;
-        }
-        input[type="range"] {
-            width: 100%;
-            accent-color: #00c6ff;
-            cursor: pointer;
-        }
-
-        /* Estaciones del Ciclo Actual */
-        .stations-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 12px;
-        }
-        @media (max-width: 640px) {
-            .stations-grid { grid-template-columns: repeat(2, 1fr); }
-            .supervision-grid { grid-template-columns: 1fr; }
-        }
-        .station-box {
-            background: #1e1f22;
-            padding: 14px;
-            border-radius: 10px;
-            text-align: center;
-            border-left: 4px solid #4e5058;
-        }
-        .station-title {
-            font-size: 12px;
-            color: #949ba4;
-            margin-bottom: 6px;
-        }
-        .station-res {
-            font-size: 1.05rem;
-            font-weight: 700;
-            color: #dbdee1;
-        }
-
-        /* Colores de estado de fruta */
-        .tag-VERDE { color: #23a55a !important; border-left-color: #23a55a !important; }
-        .tag-INTERMEDIO { color: #f0b232 !important; border-left-color: #f0b232 !important; }
-        .tag-MADURA { color: #ed4245 !important; border-left-color: #ed4245 !important; }
-
-        /* Tabla de Historial de 5 Ciclos */
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 8px;
-            font-size: 13.5px;
-        }
-        th, td {
-            padding: 10px 12px;
-            text-align: center;
-            border-bottom: 1px solid #35373c;
-        }
-        th {
-            color: #949ba4;
-            font-weight: 600;
-            text-transform: uppercase;
-            font-size: 11.5px;
-            background: #1e1f22;
-        }
-        .badge {
-            display: inline-block;
-            padding: 3px 8px;
-            border-radius: 6px;
-            font-size: 12px;
-            font-weight: 600;
-            background: #1e1f22;
-        }
-        .status-pill {
-            display: inline-block;
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-            background: #1e1f22;
-            color: #00c6ff;
-            border: 1px solid #00c6ff44;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Control por Voz y Web - Servos ESP32</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    body {
+      background-color: #0f172a;
+      color: #f8fafc;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .card {
+      background-color: #1e293b;
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+      width: 100%;
+      max-width: 440px;
+      text-align: center;
+      border: 1px solid #334155;
+    }
+    h1 {
+      font-size: 1.45rem;
+      margin-bottom: 6px;
+      color: #38bdf8;
+    }
+    p.subtitle {
+      font-size: 0.88rem;
+      color: #94a3b8;
+      margin-bottom: 20px;
+    }
+    .status-box {
+      background-color: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 16px;
+    }
+    .status-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #64748b;
+      margin-bottom: 4px;
+    }
+    .status-value {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #e2e8f0;
+    }
+    .voice-box {
+      background-color: #0f172a;
+      border: 1px dashed #475569;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 20px;
+    }
+    .btn-mic {
+      width: 100%;
+      padding: 14px;
+      font-size: 1rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      background: linear-gradient(135deg, #3b82f6, #2563eb);
+      color: white;
+      box-shadow: 0 4px 14px rgba(59, 130, 246, 0.35);
+      transition: all 0.2s;
+      margin-bottom: 12px;
+    }
+    .btn-mic.listening {
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      box-shadow: 0 0 18px rgba(245, 158, 11, 0.6);
+      animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.02); }
+      100% { transform: scale(1); }
+    }
+    .transcript-text {
+      font-size: 0.9rem;
+      color: #cbd5e1;
+      font-style: italic;
+      min-height: 22px;
+    }
+    .btn-group {
+      display: flex;
+      gap: 12px;
+    }
+    .btn-group button {
+      flex: 1;
+      padding: 14px;
+      font-size: 1rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      color: white;
+      transition: transform 0.1s;
+    }
+    .btn-group button:active {
+      transform: scale(0.97);
+    }
+    .btn-open {
+      background: linear-gradient(135deg, #10b981, #059669);
+      box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
+    }
+    .btn-close {
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+      box-shadow: 0 4px 14px rgba(239, 68, 68, 0.3);
+    }
+    .specs {
+      margin-top: 20px;
+      text-align: left;
+      font-size: 0.78rem;
+      color: #94a3b8;
+      background-color: #0f172a;
+      padding: 12px;
+      border-radius: 8px;
+      line-height: 1.5;
+    }
+  </style>
 </head>
 <body>
 
-    <div class="header-main">Percepción y Control de Frutas</div>
+  <div class="card">
+    <h1>Control de Servos por Voz</h1>
+    <p class="subtitle">ESP32 + PCA9685 + Firebase</p>
 
-    <div class="grid-layout">
-
-        <!-- TARJETA 1: PARÁMETROS DE CONTROL -->
-        <div class="card">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-                <h3>Parámetros de Control</h3>
-                <span class="status-pill" id="lblEstadoSistema">ESPERANDO</span>
-            </div>
-            <p class="sub">Control remoto de cámara, fondo y desatasco de banda.</p>
-
-            <div class="btn-row">
-                <button id="btnCapturarFondo">Capturar Fondo (F)</button>
-                <button class="btn-green" id="btnIniciarBusqueda">Iniciar Búsqueda (B)</button>
-            </div>
-
-            <div class="slider-group">
-                <div class="slider-header">
-                    <span>Tamaño del Recuadro de Detección</span>
-                    <strong id="valTamano">16%</strong>
-                </div>
-                <input type="range" id="sliderTamano" min="8" max="40" step="2" value="16">
-            </div>
-
-            <div class="slider-group">
-                <div class="slider-header">
-                    <span>Rigor de Bloqueo de Fondo</span>
-                    <strong id="valRigor">14</strong>
-                </div>
-                <input type="range" id="sliderRigor" min="4" max="40" step="2" value="14">
-            </div>
-
-            <p class="sub" style="margin: 16px 0 6px 0;">Retroceso de emergencia (si se atora la banda):</p>
-            <div class="btn-row">
-                <button class="btn-warn" id="btnRetro1">⏪ Retroceder 1 Ciclo (60mm)</button>
-                <button class="btn-danger" id="btnRetro2">⏪ Retroceder 2 Ciclos (120mm)</button>
-            </div>
-        </div>
-
-        <!-- TARJETA 2: PARÁMETROS DE SUPERVISIÓN -->
-        <div class="card">
-            <h3>Parámetros de Supervisión</h3>
-            <p class="sub">Monitoreo en tiempo real de clasificación, posición y giroscopio.</p>
-
-            <div class="supervision-grid">
-                <div class="metric-box">
-                    <span class="metric-label">Última Clasificación</span>
-                    <span class="metric-value" id="supClasificacion">--</span>
-                </div>
-                <div class="metric-box">
-                    <span class="metric-label">Posición (Ultrasónico)</span>
-                    <span class="metric-value" id="supDistancia">-- cm</span>
-                </div>
-                <div class="metric-box">
-                    <span class="metric-label">Ángulo (Giroscopio)</span>
-                    <span class="metric-value" id="supAngulo">-- °</span>
-                </div>
-            </div>
-
-            <div class="metric-box" style="margin-top: 10px; display:flex; justify-content:space-between; align-items:center; padding: 12px 16px;">
-                <span class="metric-label" style="margin:0;">Estado del Fondo en Cámara</span>
-                <span id="supFondoEstado" style="font-weight:700; color:#f0b232;">Pendiente (Presiona F)</span>
-            </div>
-
-            <div class="btn-row" style="margin-top: 16px;">
-                <button id="btnSiguienteEstacion" style="background:#35373c;">Forzar Siguiente Parada ⏭</button>
-            </div>
-        </div>
-
-        <!-- TARJETA 3: RESULTADOS DE CADA FRUTA (CICLO ACTUAL) -->
-        <div class="card card-full">
-            <h3>Resultados del Ciclo Actual</h3>
-            <p class="sub">Detección estación por estación durante el recorrido de la banda.</p>
-
-            <div class="stations-grid">
-                <div class="station-box" id="boxEst1">
-                    <div class="station-title">FRUTA 1 (0 mm)</div>
-                    <div class="station-res" id="resEst1">--</div>
-                </div>
-                <div class="station-box" id="boxEst2">
-                    <div class="station-title">FRUTA 2 (60 mm)</div>
-                    <div class="station-res" id="resEst2">--</div>
-                </div>
-                <div class="station-box" id="boxEst3">
-                    <div class="station-title">FRUTA 3 (120 mm)</div>
-                    <div class="station-res" id="resEst3">--</div>
-                </div>
-                <div class="station-box" id="boxEst4">
-                    <div class="station-title">FRUTA 4 (180 mm)</div>
-                    <div class="station-res" id="resEst4">--</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- TARJETA 4: HISTORIAL DE LOS ÚLTIMOS 5 CICLOS -->
-        <div class="card card-full">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-                <div>
-                    <h3>Historial de Ciclos Anteriores (Últimos 5)</h3>
-                    <p class="sub" style="margin-bottom:8px;">Registro automático al finalizar cada recorrido de 4 frutas.</p>
-                </div>
-                <button id="btnLimpiarHistorial" style="flex:0; min-width:auto; padding:8px 14px; font-size:12px; background:#35373c;">Limpiar</button>
-            </div>
-
-            <table>
-                <thead>
-                    <tr>
-                        <th>Hora</th>
-                        <th>Fruta 1 (0mm)</th>
-                        <th>Fruta 2 (60mm)</th>
-                        <th>Fruta 3 (120mm)</th>
-                        <th>Fruta 4 (180mm)</th>
-                    </tr>
-                </thead>
-                <tbody id="tablaHistorial">
-                    <tr><td colspan="5" style="color:#949ba4;">Sin ciclos registrados aún.</td></tr>
-                </tbody>
-            </table>
-        </div>
-
+    <div class="status-box">
+      <div class="status-label">Estado en Firebase</div>
+      <div class="status-value" id="estadoTexto">Conectando...</div>
     </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-        import { getDatabase, ref, set, update, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+    <!-- Sección de Control por Voz -->
+    <div class="voice-box">
+      <button id="btnMic" class="btn-mic" onclick="toggleMic()">
+        🎤 Activar Micrófono (Escucha Continua)
+      </button>
+      <div class="status-label">Última frase detectada:</div>
+      <div class="transcript-text" id="textoDetectado">Esperando comando de voz...</div>
+    </div>
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyB8LeQ1UNG6XqOpVWAMyde05JOvlWRENvU",
-            authDomain: "exsos-login.firebaseapp.com",
-            projectId: "exsos-login",
-            storageBucket: "exsos-login.firebasestorage.app",
-            messagingSenderId: "254157261321",
-            appId: "1:254157261321:web:449f88c3567303afa846d8",
-            databaseURL: "https://estacionamientouanl-default-rtdb.firebaseio.com"
-        };
+    <!-- Botones Manuales de Respaldo -->
+    <div class="btn-group">
+      <button class="btn-open" onclick="enviarComando(1)">
+        ABRIR (1)
+      </button>
+      <button class="btn-close" onclick="enviarComando(2)">
+        CERRAR (2)
+      </button>
+    </div>
 
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
+    <div class="specs">
+      <strong>Comandos de voz para abrir (envía 1):</strong> "abrir", "abre", "abierto", "open", "uno"<br>
+      <strong>Comandos de voz para cerrar (envía 2):</strong> "cerrar", "cierra", "cerrado", "close", "dos"
+    </div>
+  </div>
 
-        // --- 1. BOTONES DE PARÁMETROS DE CONTROL ---
-        document.getElementById("btnCapturarFondo").addEventListener("click", () => {
-            update(ref(db, "WebControl"), { cmd_fondo: true, timestamp: Date.now() });
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDTEJ3mfhPKsC2gsp4VNutoCcZ-4naQNTs",
+      databaseURL: "https://estacionamientouanl-default-rtdb.firebaseio.com",
+      projectId: "estacionamientouanl"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    const estadoElemento = document.getElementById("estadoTexto");
+    const textoDetectado = document.getElementById("textoDetectado");
+    const btnMic = document.getElementById("btnMic");
+
+    // Escuchar estado en tiempo real desde Firebase
+    const controlRef = ref(db, "control_servos");
+    onValue(controlRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        const cmd = data.comando !== undefined ? `Cmd: ${data.comando}` : "";
+        const est = data.estado ? ` | ${data.estado}` : "";
+        estadoElemento.textContent = `${cmd}${est}`;
+      } else {
+        estadoElemento.textContent = "Listo (Sin comando previo)";
+      }
+    });
+
+    // Función para enviar 1 o 2 a Firebase
+    window.enviarComando = function(valor) {
+      set(ref(db, "control_servos/comando"), valor)
+        .then(() => {
+          console.log("Comando enviado a Firebase:", valor);
+        })
+        .catch((error) => {
+          alert("Error al enviar a Firebase: " + error.message);
         });
+    };
 
-        document.getElementById("btnIniciarBusqueda").addEventListener("click", () => {
-            update(ref(db, "Control"), { estado_sistema: "BUSCANDO", leido: 0 });
-            update(ref(db, "WebControl"), { cmd_iniciar: true, timestamp: Date.now() });
-        });
+    // ================= RECONOCIMIENTO DE VOZ =================
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    let recognition;
+    let escuchando = false;
 
-        document.getElementById("btnSiguienteEstacion").addEventListener("click", () => {
-            update(ref(db, "Control"), { leido: 1 });
-        });
+    if (!SpeechRecognition) {
+      textoDetectado.textContent = "Usa Google Chrome o Edge para el control por voz.";
+      btnMic.disabled = true;
+    } else {
+      recognition = new SpeechRecognition();
+      recognition.lang = "es-MX";
+      recognition.continuous = true;     // Mantiene el micrófono abierto continuamente
+      recognition.interimResults = false; // Evalúa la frase al terminar de decirla
 
-        // Sliders de recuadro y rigor
-        const sliderTamano = document.getElementById("sliderTamano");
-        const valTamano = document.getElementById("valTamano");
-        sliderTamano.addEventListener("input", (e) => {
-            valTamano.innerText = `${e.target.value}%`;
-            update(ref(db, "WebControl"), { tamano_recuadro: parseInt(e.target.value) / 100.0 });
-        });
+      recognition.onresult = (event) => {
+        const ultimoResultado = event.results[event.results.length - 1];
+        const frase = ultimoResultado[0].transcript.trim().toLowerCase();
+        
+        textoDetectado.textContent = `"${frase}"`;
+        console.log("Voz reconocida:", frase);
 
-        const sliderRigor = document.getElementById("sliderRigor");
-        const valRigor = document.getElementById("valRigor");
-        sliderRigor.addEventListener("input", (e) => {
-            valRigor.innerText = e.target.value;
-            update(ref(db, "WebControl"), { margen_fondo: parseInt(e.target.value) });
-        });
-
-        // Botones de Retroceso por si se atora (1 ciclo = 60mm, 2 ciclos = 120mm)
-        document.getElementById("btnRetro1").addEventListener("click", () => {
-            update(ref(db, "Control"), { retroceder_ciclos: 1, estado_sistema: "RETROCEDIENDO" });
-        });
-
-        document.getElementById("btnRetro2").addEventListener("click", () => {
-            update(ref(db, "Control"), { retroceder_ciclos: 2, estado_sistema: "RETROCEDIENDO" });
-        });
-
-        document.getElementById("btnLimpiarHistorial").addEventListener("click", () => {
-            set(ref(db, "HistorialCiclos"), null);
-            set(ref(db, "CicloActual"), { e1: "--", e2: "--", e3: "--", e4: "--" });
-        });
-
-        // --- 2. ESCUCHA EN TIEMPO REAL DE SUPERVISIÓN Y CONTROL ---
-        onValue(ref(db, "Control"), (snap) => {
-            const d = snap.val();
-            if (!d) return;
-            document.getElementById("lblEstadoSistema").innerText = d.estado_sistema || "ESPERANDO";
-
-            const res = d.resultado || "--";
-            const elClas = document.getElementById("supClasificacion");
-            elClas.innerText = res;
-            elClas.className = "metric-value tag-" + res;
-        });
-
-        onValue(ref(db, "Sensores"), (snap) => {
-            const s = snap.val();
-            if (!s) return;
-
-            if (s.DistanciaActual !== undefined) {
-                document.getElementById("supDistancia").innerText = `${Number(s.DistanciaActual).toFixed(1)} cm`;
-            }
-            // Soporta el nuevo Giroscopio (AnguloGiroscopio) o el campo anterior mientras cambias el sensor
-            if (s.AnguloGiroscopio !== undefined) {
-                document.getElementById("supAngulo").innerText = `${Number(s.AnguloGiroscopio).toFixed(1)} °`;
-            } else if (s.InclinacionEstado !== undefined) {
-                document.getElementById("supAngulo").innerText = s.InclinacionEstado;
-            }
-        });
-
-        onValue(ref(db, "WebControl/fondo_ok"), (snap) => {
-            const ok = snap.val();
-            const el = document.getElementById("supFondoEstado");
-            if (ok) {
-                el.innerText = "Bloqueado OK";
-                el.style.color = "#23a55a";
-            } else {
-                el.innerText = "Pendiente (Presiona F)";
-                el.style.color = "#f0b232";
-            }
-        });
-
-        // --- 3. RESULTADOS DEL CICLO ACTUAL ---
-        function pintarEstacion(num, valor) {
-            const box = document.getElementById("boxEst" + num);
-            const txt = document.getElementById("resEst" + num);
-            const v = valor || "--";
-            txt.innerText = v;
-            box.className = "station-box tag-" + v;
-            txt.className = "station-res tag-" + v;
+        // Evaluar palabras clave para OPEN (1)
+        if (
+          frase.includes("abrir") || 
+          frase.includes("abre") || 
+          frase.includes("abierto") || 
+          frase.includes("open") || 
+          frase.includes("uno")
+        ) {
+          enviarComando(1);
+          textoDetectado.textContent = `"${frase}" ➔ Enviando OPEN (1)`;
+        } 
+        // Evaluar palabras clave para CLOSE (2)
+        else if (
+          frase.includes("cerrar") || 
+          frase.includes("cierra") || 
+          frase.includes("cerrado") || 
+          frase.includes("close") || 
+          frase.includes("dos")
+        ) {
+          enviarComando(2);
+          textoDetectado.textContent = `"${frase}" ➔ Enviando CLOSE (2)`;
         }
+      };
 
-        onValue(ref(db, "CicloActual"), (snap) => {
-            const c = snap.val() || {};
-            pintarEstacion(1, c.e1);
-            pintarEstacion(2, c.e2);
-            pintarEstacion(3, c.e3);
-            pintarEstacion(4, c.e4);
-        });
-
-        // --- 4. TABLA DE LOS ÚLTIMOS 5 CICLOS ---
-        function badgeFruta(v) {
-            const val = v || "--";
-            return `<span class="badge tag-${val}">${val}</span>`;
+      recognition.onerror = (event) => {
+        console.warn("Aviso del micrófono:", event.error);
+        if (event.error === "not-allowed") {
+          escuchando = false;
+          actualizarBotonMic();
+          textoDetectado.textContent = "Permiso de micrófono denegado en el navegador.";
         }
+      };
 
-        onValue(ref(db, "HistorialCiclos"), (snap) => {
-            const data = snap.val();
-            const tbody = document.getElementById("tablaHistorial");
-            if (!data) {
-                tbody.innerHTML = `<tr><td colspan="5" style="color:#949ba4;">Sin ciclos registrados aún.</td></tr>`;
-                return;
-            }
-            const lista = Array.isArray(data) ? data : Object.values(data);
-            const ultimos5 = lista.slice(-5).reverse();
+      // Si el navegador pausa la escucha por silencio prolongado, la reactiva automáticamente
+      recognition.onend = () => {
+        if (escuchando) {
+          try {
+            recognition.start();
+          } catch (e) {
+            console.log("Reiniciando escucha...");
+          }
+        }
+      };
+    }
 
-            tbody.innerHTML = ultimos5.map((item) => `
-                <tr>
-                    <td style="color:#b5bac1;">${item.hora || "--:--"}</td>
-                    <td>${badgeFruta(item.e1)}</td>
-                    <td>${badgeFruta(item.e2)}</td>
-                    <td>${badgeFruta(item.e3)}</td>
-                    <td>${badgeFruta(item.e4)}</td>
-                </tr>
-            `).join("");
-        });
-    </script>
+    function actualizarBotonMic() {
+      if (escuchando) {
+        btnMic.classList.add("listening");
+        btnMic.textContent = "🛑 Escuchando... (Haz clic para detener)";
+      } else {
+        btnMic.classList.remove("listening");
+        btnMic.textContent = "🎤 Activar Micrófono (Escucha Continua)";
+      }
+    }
+
+    window.toggleMic = function() {
+      if (!recognition) return;
+
+      if (!escuchando) {
+        escuchando = true;
+        recognition.start();
+        textoDetectado.textContent = "Escuchando... Di 'Abrir' o 'Cerrar'";
+      } else {
+        escuchando = false;
+        recognition.stop();
+        textoDetectado.textContent = "Micrófono en pausa.";
+      }
+      actualizarBotonMic();
+    };
+  </script>
+
 </body>
 </html>
